@@ -149,60 +149,11 @@ function viewWho(){
   </div>`));
 }
 
-/* ---------- PORTFOLIO ---------- */
+/* ---------- PORTFOLIO (your exact original app, embedded) ---------- */
 function viewPortfolio(){
-  const txns = (DATA.portfolio&&DATA.portfolio.transactions)||[];
-  const exps = (DATA.expenses&&DATA.expenses.transactions)||[];
-
-  // asset positions (rows with a symbol): net quantity by symbol
-  const pos={};
-  txns.filter(t=>t.symbol).forEach(t=>{ pos[t.symbol]=(pos[t.symbol]||0)+ SIGN(t.type)*(+t.quantity||0); });
-  // cash flows by account+currency (rows without a symbol)
-  const cash={};
-  txns.filter(t=>!t.symbol).forEach(t=>{ const k=`${t.account}|${t.currency||'IDR'}`; cash[k]=(cash[k]||0)+SIGN(t.type)*(+t.amount||0); });
-  // expense totals
-  const expTotal = exps.reduce((s,e)=>s+(+e.amount||0),0);
-  const byCat={}; exps.forEach(e=>{const k=e.subcategory||e.category||'Lain'; byCat[k]=(byCat[k]||0)+(+e.amount||0);});
-  const byMonth={}; exps.forEach(e=>{const m=(e.date||'').slice(0,7); if(m)byMonth[m]=(byMonth[m]||0)+(+e.amount||0);});
-
-  const kpi=(label,val,hint,color)=>`<div class="card kpi"><div class="label">${label}</div><div class="val" style="color:${color||'var(--txt)'}">${val}</div><div class="hint">${hint||''}</div></div>`;
-
-  V().append(el(`<div class="grid kpis">
-    ${kpi('Asset Positions', Object.keys(pos).length, 'symbols held', 'var(--accent)')}
-    ${kpi('Cash Accounts', Object.keys(cash).length, 'account · currency', 'var(--green)')}
-    ${kpi('Transactions', txns.length, 'portfolio ledger', 'var(--purple)')}
-    ${kpi('Total Spending', money(expTotal), exps.length+' expenses logged', 'var(--orange)')}
-  </div>`));
-
-  // positions + cash tables
-  V().append(el(`<div class="grid cols" style="margin-top:14px">
-    <div class="card"><h3 class="sec">Asset Positions (net qty)</h3>
-      <table><thead><tr><th>Symbol</th><th class="num">Net Quantity</th></tr></thead><tbody>
-      ${Object.entries(pos).sort((a,b)=>b[1]-a[1]).map(([s,q])=>`<tr><td>${s}</td><td class="num">${q.toLocaleString('en',{maximumFractionDigits:8})}</td></tr>`).join('')||'<tr><td class="muted">none</td></tr>'}
-      </tbody></table>
-      <div class="hint muted" style="margin-top:8px">Live valuation needs a price feed — coming with the Sheets sync.</div>
-    </div>
-    <div class="card"><h3 class="sec">Cash by Account</h3>
-      <table><thead><tr><th>Account</th><th>Cur</th><th class="num">Net</th></tr></thead><tbody>
-      ${Object.entries(cash).map(([k,v])=>{const[a,c]=k.split('|');return `<tr><td>${a}</td><td>${c}</td><td class="num">${money(v,c)}</td></tr>`}).join('')}
-      </tbody></table>
-    </div>
-  </div>`));
-
-  // charts
-  V().append(el(`<div class="grid cols" style="margin-top:14px">
-    <div class="card"><h3 class="sec">Spending by Category</h3><canvas id="catChart"></canvas></div>
-    <div class="card"><h3 class="sec">Spending by Month</h3><canvas id="monChart"></canvas></div>
-  </div>`));
-  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  new Chart(document.getElementById('catChart'),{type:'doughnut',
-    data:{labels:cats.map(c=>c[0]),datasets:[{data:cats.map(c=>c[1]),
-      backgroundColor:['#6ea8fe','#43d39e','#ffb454','#b692ff','#ff6b6b','#ff86c8','#5ad1c9','#9aa3ad']}]},
-    options:{plugins:{legend:{position:'right',labels:{color:'#8a93a0',boxWidth:12}}}}});
-  const mons=Object.entries(byMonth).sort();
-  new Chart(document.getElementById('monChart'),{type:'bar',
-    data:{labels:mons.map(m=>m[0]),datasets:[{data:mons.map(m=>m[1]),backgroundColor:'#6ea8fe',borderRadius:6}]},
-    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8a93a0'},grid:{display:false}},y:{ticks:{color:'#8a93a0'},grid:{color:'#262b33'}}}}});
+  V().append(el(`<iframe src="./portfolio_legacy.html"
+    style="width:100%;height:calc(100vh - 130px);border:1px solid var(--line);border-radius:14px;background:#fff"
+    title="Portfolio"></iframe>`));
 }
 
 /* ---------- NETWORKING ---------- */

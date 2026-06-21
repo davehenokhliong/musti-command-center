@@ -5,25 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Musti Command Center</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0d10; --panel:#14171c; --panel2:#1b1f26; --line:#262b33;
-    --txt:#e8ecf1; --muted:#8a93a0; --accent:#6ea8fe; --green:#43d39e;
-    --orange:#ffb454; --purple:#b692ff; --red:#ff6b6b; --pink:#ff86c8;
+    --bg:#09090b; --panel:#18181b; --panel2:#27272a; --line:#27272a;
+    --txt:#f4f4f5; --muted:#a1a1aa; --faint:#52525b;
+    --accent:#60a5fa; --green:#34d399; --orange:#fbbf24; --purple:#a78bfa;
+    --red:#f87171; --pink:#f0abfc; --lime:#a3e635; --teal:#2dd4bf;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.55 "Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
   .app{display:flex;min-height:100vh}
   /* Sidebar */
   .sidebar{width:236px;background:var(--panel);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
   .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
-  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--purple));display:grid;place-items:center;font-size:18px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--lime),var(--teal));display:grid;place-items:center;font-size:18px}
   .brand b{font-size:15px}.brand small{display:block;color:var(--muted);font-size:11px}
   .nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
   .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--muted);font-weight:500}
   .nav button:hover{background:var(--panel2);color:var(--txt)}
   .nav button.active{background:var(--panel2);color:var(--txt)}
-  .nav button.active .dot{background:var(--green)}
+  .nav button.active{box-shadow:inset 2px 0 0 var(--lime)}
+  .nav button.active .dot{background:var(--lime)}
   .nav .dot{width:7px;height:7px;border-radius:50%;background:#3a414c}
   .spacer{flex:1}
   .user{display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--line);color:var(--muted)}
@@ -33,9 +37,9 @@
   .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
   .head h1{font-size:18px;margin:0;letter-spacing:.4px}
   .head .sub{color:var(--muted);font-size:12px;margin-left:10px}
-  .live{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-size:12px}
-  .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(67,211,158,.5);animation:p 2s infinite}
-  @keyframes p{0%{box-shadow:0 0 0 0 rgba(67,211,158,.5)}70%{box-shadow:0 0 0 8px rgba(67,211,158,0)}100%{box-shadow:0 0 0 0 rgba(67,211,158,0)}}
+  .live{display:inline-flex;align-items:center;gap:7px;color:var(--lime);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(163,230,53,.5);animation:p 2s infinite}
+  @keyframes p{0%{box-shadow:0 0 0 0 rgba(163,230,53,.5)}70%{box-shadow:0 0 0 8px rgba(163,230,53,0)}100%{box-shadow:0 0 0 0 rgba(163,230,53,0)}}
   .grid{display:grid;gap:14px}
   .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
@@ -44,7 +48,10 @@
   .kpi .hint{color:var(--muted);font-size:11px;margin-top:4px}
   .cols{grid-template-columns:1fr 1fr}
   @media(max-width:900px){.cols{grid-template-columns:1fr}.sidebar{width:64px}.brand b,.brand small,.nav button span,.user .meta{display:none}}
-  h3.sec{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:0 0 12px}
+  h3.sec{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;margin:0 0 12px}
+  .kpi .label{color:var(--faint)!important}
+  .head h1{font-weight:700;font-size:15px;letter-spacing:.02em}
+  .card{border-radius:12px}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
   th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}

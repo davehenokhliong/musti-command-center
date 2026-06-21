@@ -79,13 +79,16 @@
     <div class="brand"><div class="logo">🎵</div><div><b>Musti</b><small>Command Center</small></div></div>
     <nav class="nav" id="nav">
       <button data-tab="who" class="active"><span class="dot"></span><span>Who You Are</span></button>
+      <button data-tab="drip"><span class="dot"></span><span>DRIP · Weekly</span></button>
       <button data-tab="portfolio"><span class="dot"></span><span>Portfolio</span></button>
       <button data-tab="networking"><span class="dot"></span><span>Networking</span></button>
       <button data-tab="knowledge"><span class="dot"></span><span>Knowledge</span></button>
       <button data-tab="settings"><span class="dot"></span><span>Settings</span></button>
     </nav>
     <div class="spacer"></div>
-    <div class="user"><div class="av">D</div><div class="meta"><b>Dave</b><small class="muted">Owner</small></div></div>
+    <div class="user"><div class="av">D</div><div class="meta"><b>Dave</b><small class="muted">Owner</small></div>
+      <button onclick="logout()" title="Keluar" style="all:unset;cursor:pointer;margin-left:auto;color:var(--muted);font-size:12px;padding:6px 8px;border-radius:7px">⎋ Keluar</button>
+    </div>
   </aside>
 
   <main class="main">
@@ -124,13 +127,19 @@ function mdToHtml(md){
 }
 
 async function boot(){
-  [DATA.profileMd, DATA.portfolio, DATA.expenses, DATA.networking] = await Promise.all(
-    [loadText('profile.md'), load('portfolio'), load('expenses'), load('networking')]);
+  [DATA.profileMd, DATA.portfolio, DATA.expenses, DATA.networking, DATA.drip] = await Promise.all(
+    [loadText('profile.md'), load('portfolio'), load('expenses'), load('networking'), load('drip')]);
   render('who');
 }
 
+function logout(){
+  try{ var x=new XMLHttpRequest(); x.open('GET', location.origin+'/?logout='+Date.now(), false, 'logout', 'x'+Date.now()); x.send(); }catch(e){}
+  location.replace('/');
+}
+
 const TITLES = {
-  who:['WHO YOU ARE','self profile'], portfolio:['PORTFOLIO','investments · spending'],
+  who:['WHO YOU ARE','self profile'], drip:['DRIP MATRIX','review weekly · how I spend my time'],
+  portfolio:['PORTFOLIO','investments · spending'],
   networking:['NETWORKING','relationships'], knowledge:['KNOWLEDGE','from the brain'], settings:['SETTINGS','']
 };
 document.getElementById('nav').addEventListener('click',e=>{
@@ -142,7 +151,7 @@ function render(tab){
   document.getElementById('title').textContent=TITLES[tab][0];
   document.getElementById('subtitle').textContent=TITLES[tab][1];
   document.getElementById('view').innerHTML = '';
-  ({who:viewWho, portfolio:viewPortfolio, networking:viewNetworking, knowledge:viewKnowledge, settings:viewSettings}[tab])();
+  ({who:viewWho, drip:viewDrip, portfolio:viewPortfolio, networking:viewNetworking, knowledge:viewKnowledge, settings:viewSettings}[tab])();
 }
 const el = h => { const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; };
 const V = () => document.getElementById('view');
@@ -153,6 +162,47 @@ function viewWho(){
   V().append(el(`<div class="card">${html||'<p class="muted">who-i-am.md is empty.</p>'}
     <div class="hint muted" style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px">
       Source: <code>vault/profiles/who-i-am.md</code> in the brain repo — edit there, it syncs here.</div>
+  </div>`));
+}
+
+/* ---------- DRIP MATRIX (weekly review) ---------- */
+function viewDrip(){
+  const d = DATA.drip||{}; const q = d.quadrants||{};
+  const last = localStorage.getItem('dripReviewed')||'';
+  const quad=(key,color)=>{ const x=q[key]||{}; return `<div class="card" style="border-color:${color}33">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <h3 class="sec" style="color:${color};margin:0">${x.label||key}</h3></div>
+    <div class="hint muted" style="margin:4px 0 10px">${x.hint||''}</div>
+    <ul class="list">${(x.items||[]).map(i=>`<li>${i}</li>`).join('')||'<li class="muted">— (empty)</li>'}</ul>
+  </div>`; };
+  // weekly review banner
+  V().append(el(`<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;border-color:#a3e63533">
+    <div><b style="color:var(--lime)">Weekly DRIP review</b>
+      <div class="hint muted">${last?('Last reviewed: '+last):'Not reviewed yet this week.'} — move tasks between quadrants as your work changes.</div></div>
+    <button onclick="localStorage.setItem('dripReviewed', new Date().toISOString().slice(0,10)); render('drip')"
+      style="all:unset;cursor:pointer;background:var(--lime);color:#0d0d0d;font-weight:700;padding:9px 16px;border-radius:9px;font-size:13px">✓ Mark reviewed</button>
+  </div>`));
+  // axis hint
+  V().append(el(`<div class="hint muted" style="margin-bottom:8px">↑ makes money &nbsp;·&nbsp; → lights you up</div>`));
+  // 2x2 grid: top-left Replacement, top-right Production / bottom-left Delegation, bottom-right Investment
+  V().append(el(`<div class="grid cols">
+    ${quad('replacement','#fbbf24')} ${quad('production','#a3e635')}
+    ${quad('delegation','#f87171')} ${quad('investment','#60a5fa')}
+  </div>`));
+  // energy + rhythm
+  const r = d.rhythm||{};
+  V().append(el(`<div class="grid cols" style="margin-top:14px">
+    <div class="card"><h3 class="sec">⚡ Energizes / 🪫 Drains</h3>
+      <div class="muted" style="font-size:12px;margin-bottom:4px">Energizes</div>
+      <div class="chip-row">${(d.energizes||[]).map(x=>`<span class="tag" style="border-color:#a3e63555;color:var(--lime)">${x}</span>`).join('')}</div>
+      <div class="muted" style="font-size:12px;margin:12px 0 4px">Drains</div>
+      <div class="chip-row">${(d.drains||[]).map(x=>`<span class="tag" style="border-color:#f8717155;color:var(--red)">${x}</span>`).join('')}</div>
+    </div>
+    <div class="card"><h3 class="sec">⏰ Productivity rhythm</h3>
+      <p><b style="color:var(--lime)">Peak:</b> ${r.peak||''}</p>
+      <p><b style="color:var(--orange)">Trough:</b> ${r.trough||''}</p>
+      <div class="hint muted" style="margin-top:10px">Full log lives in the brain: <code>vault/profiles/energy-patterns.md</code></div>
+    </div>
   </div>`));
 }
 

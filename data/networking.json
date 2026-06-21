@@ -1,0 +1,45 @@
+{
+  "_meta": { "note": "Networking / contacts. 'relationship' drives grouping. Seeded from known contacts — edit/expand freely (or via Google Sheet later)." },
+  "contacts": [
+    {
+      "name": "Dave Obadja",
+      "company": "Akademi Crypto",
+      "role": "",
+      "relationship": "business",
+      "context": "Business / partnership discussions",
+      "lastContact": "",
+      "notes": "",
+      "tags": ["crypto", "partnership"]
+    },
+    {
+      "name": "Jeje",
+      "company": "",
+      "role": "",
+      "relationship": "friend",
+      "context": "Close friend",
+      "lastContact": "",
+      "notes": "",
+      "tags": ["personal"]
+    },
+    {
+      "name": "Tian",
+      "company": "Musti Musik",
+      "role": "Academy",
+      "relationship": "employee",
+      "context": "Team — Academy",
+      "lastContact": "",
+      "notes": "",
+      "tags": ["team", "academy"]
+    },
+    {
+      "name": "Lila",
+      "company": "Musti Musik",
+      "role": "Ads",
+      "relationship": "employee",
+      "context": "Team — Ads/Marketing",
+      "lastContact": "",
+      "notes": "",
+      "tags": ["team", "ads"]
+    }
+  ]
+}

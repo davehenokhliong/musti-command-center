@@ -1,0 +1,808 @@
+{
+  "_meta": {
+    "source": "data expense baru.xlsx",
+    "generated": "2026-06-22T00:00:04.619769"
+  },
+  "transactions": [
+    {
+      "date": "2026-03-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 500009
+    },
+    {
+      "date": "2026-03-02T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Lynk.id",
+      "note": null,
+      "amount": 754243
+    },
+    {
+      "date": "2026-03-03T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": null,
+      "amount": 918666
+    },
+    {
+      "date": "2026-03-04T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Tuker uang",
+      "note": null,
+      "amount": 4000000
+    },
+    {
+      "date": "2026-03-04T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Tokopedia",
+      "note": null,
+      "amount": 1252020
+    },
+    {
+      "date": "2026-03-06T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": null,
+      "amount": 527000
+    },
+    {
+      "date": "2026-03-06T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 2500
+    },
+    {
+      "date": "2026-03-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 2000000
+    },
+    {
+      "date": "2026-03-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 70000
+    },
+    {
+      "date": "2026-03-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": null,
+      "amount": 85000
+    },
+    {
+      "date": "2026-03-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 57800
+    },
+    {
+      "date": "2026-03-08T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 2500
+    },
+    {
+      "date": "2026-03-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Self Improvement",
+      "note": null,
+      "amount": 62535
+    },
+    {
+      "date": "2026-03-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Self Improvement",
+      "note": null,
+      "amount": 525000
+    },
+    {
+      "date": "2026-03-11T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Tokopedia",
+      "note": null,
+      "amount": 501500
+    },
+    {
+      "date": "2026-03-11T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Tokopedia",
+      "note": null,
+      "amount": 714090
+    },
+    {
+      "date": "2026-03-14T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 500000
+    },
+    {
+      "date": "2026-03-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": null,
+      "amount": 12252162
+    },
+    {
+      "date": "2026-03-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 400000
+    },
+    {
+      "date": "2026-03-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 186000
+    },
+    {
+      "date": "2026-03-17T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Self Improvement",
+      "note": null,
+      "amount": 573990
+    },
+    {
+      "date": "2026-03-20T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 15000
+    },
+    {
+      "date": "2026-03-28T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Lynk.id",
+      "note": null,
+      "amount": 99693
+    },
+    {
+      "date": "2026-03-28T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": null,
+      "amount": 198000
+    },
+    {
+      "date": "2026-03-31T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Pajak Bunga",
+      "note": null,
+      "amount": 77.38
+    },
+    {
+      "date": "2026-04-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 655664
+    },
+    {
+      "date": "2026-04-03T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 1000000
+    },
+    {
+      "date": "2026-04-04T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": "jakarta PU",
+      "amount": 140000
+    },
+    {
+      "date": "2026-04-05T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 75000
+    },
+    {
+      "date": "2026-04-06T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": null,
+      "amount": 12911707
+    },
+    {
+      "date": "2026-04-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": "Gereja",
+      "amount": 1000000
+    },
+    {
+      "date": "2026-04-17T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 15000
+    },
+    {
+      "date": "2026-04-19T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": "Gereja",
+      "amount": 1000000
+    },
+    {
+      "date": "2026-04-21T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 60000
+    },
+    {
+      "date": "2026-04-25T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hadiah buat orang",
+      "note": "Hadiah",
+      "amount": 1500000
+    },
+    {
+      "date": "2026-04-26T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Lynk.id",
+      "note": null,
+      "amount": 99693
+    },
+    {
+      "date": "2026-04-26T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Pandan Bistro",
+      "amount": 278080
+    },
+    {
+      "date": "2026-04-29T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Transfer kak dian",
+      "note": "Rembes salah trf kak dian",
+      "amount": 250000
+    },
+    {
+      "date": "2026-04-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Transfer kak dian",
+      "note": null,
+      "amount": 2000000
+    },
+    {
+      "date": "2026-04-08T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Digimap",
+      "amount": 625000
+    },
+    {
+      "date": "2026-04-11T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "itunes",
+      "amount": 169000
+    },
+    {
+      "date": "2026-04-11T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "TSNADA",
+      "amount": 349160
+    },
+    {
+      "date": "2026-04-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Coteca",
+      "amount": 100000
+    },
+    {
+      "date": "2026-04-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Buah Segar",
+      "amount": 156028
+    },
+    {
+      "date": "2026-04-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "SPBU",
+      "amount": 279100
+    },
+    {
+      "date": "2026-04-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Software",
+      "note": "TEYMZ.COM",
+      "amount": 69576
+    },
+    {
+      "date": "2026-04-17T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "itunes",
+      "amount": 99000
+    },
+    {
+      "date": "2026-04-18T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "AJ BAKERY & CAFE-HO",
+      "amount": 84000
+    },
+    {
+      "date": "2026-04-18T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "AEON STORE",
+      "amount": 128341
+    },
+    {
+      "date": "2026-04-21T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "ABURA SOBA",
+      "amount": 273064
+    },
+    {
+      "date": "2026-04-22T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "TAEYANG SUNG-HO",
+      "amount": 240000
+    },
+    {
+      "date": "2026-04-25T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "GUARDIAN ",
+      "amount": 30000
+    },
+    {
+      "date": "2026-04-06T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": "BCA",
+      "amount": 10000
+    },
+    {
+      "date": "2026-05-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Transfer kak dian",
+      "note": "Matcha",
+      "amount": 63000
+    },
+    {
+      "date": "2026-05-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 419000
+    },
+    {
+      "date": "2026-05-14T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 1000000
+    },
+    {
+      "date": "2026-05-14T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 96000
+    },
+    {
+      "date": "2026-05-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 2500
+    },
+    {
+      "date": "2026-05-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 15000
+    },
+    {
+      "date": "2026-05-16T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 2500
+    },
+    {
+      "date": "2026-05-21T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 2500
+    },
+    {
+      "date": "2026-05-24T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 1000000
+    },
+    {
+      "date": "2026-05-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 120000
+    },
+    {
+      "date": "2026-05-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 75000
+    },
+    {
+      "date": "2026-05-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 107000
+    },
+    {
+      "date": "2026-05-31T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 15000
+    },
+    {
+      "date": "2026-05-31T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Pajak Bunga",
+      "note": null,
+      "amount": 61.01
+    },
+    {
+      "date": "2026-06-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Transfer kak dian",
+      "note": null,
+      "amount": 1100000
+    },
+    {
+      "date": "2026-06-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Biaya Admin",
+      "note": null,
+      "amount": 15000
+    },
+    {
+      "date": "2026-06-04T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Rumah Sakit",
+      "note": null,
+      "amount": 51450
+    },
+    {
+      "date": "2026-05-08T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Digimap",
+      "amount": 625000
+    },
+    {
+      "date": "2026-05-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Molly",
+      "amount": 52000
+    },
+    {
+      "date": "2026-05-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "M7 Tactical Supermall",
+      "amount": 150000
+    },
+    {
+      "date": "2026-05-09T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Fore Donut",
+      "amount": 110000
+    },
+    {
+      "date": "2026-05-10T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Itunes",
+      "amount": 6000
+    },
+    {
+      "date": "2026-05-11T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Itunes",
+      "amount": 169000
+    },
+    {
+      "date": "2026-05-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "KHUBILAI KHAN",
+      "amount": 813000
+    },
+    {
+      "date": "2026-05-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Itunes",
+      "amount": 110000
+    },
+    {
+      "date": "2026-05-15T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Software",
+      "note": "Teymz",
+      "amount": 71013
+    },
+    {
+      "date": "2026-05-17T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "SPBU",
+      "amount": 318740
+    },
+    {
+      "date": "2026-05-21T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Grab Bangkok",
+      "amount": 10588
+    },
+    {
+      "date": "2026-05-23T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Itunes",
+      "amount": 110000
+    },
+    {
+      "date": "2026-05-23T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Itunes",
+      "amount": 110000
+    },
+    {
+      "date": "2026-05-27T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": "Java Festival",
+      "amount": 1050000
+    },
+    {
+      "date": "2026-05-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Luuca",
+      "amount": 80300
+    },
+    {
+      "date": "2026-05-30T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Pandan Bistro",
+      "amount": 325655
+    },
+    {
+      "date": "2026-05-31T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Hattori",
+      "amount": 425040
+    },
+    {
+      "date": "2026-06-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Molly",
+      "amount": 48000
+    },
+    {
+      "date": "2026-06-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Fore Donut",
+      "amount": 76000
+    },
+    {
+      "date": "2026-06-01T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "SPBU",
+      "amount": 298030
+    },
+    {
+      "date": "2026-06-03T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Expense Kartu Kredit BCA",
+      "note": "Bea Materai",
+      "amount": 10000
+    },
+    {
+      "date": "2026-06-06T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": null,
+      "amount": 152000
+    },
+    {
+      "date": "2026-06-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Gereja",
+      "note": null,
+      "amount": 1000000
+    },
+    {
+      "date": "2026-06-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Tuker uang",
+      "note": "Ovo",
+      "amount": 2000000
+    },
+    {
+      "date": "2026-06-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Ayam Joyo",
+      "amount": 72000
+    },
+    {
+      "date": "2026-06-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Makan",
+      "note": "Bobby's",
+      "amount": 85800
+    },
+    {
+      "date": "2026-06-07T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hadiah buat orang",
+      "note": "Ultah Ko Fred",
+      "amount": 500000
+    },
+    {
+      "date": "2026-06-08T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Hang out",
+      "note": "Bowling",
+      "amount": 15000
+    },
+    {
+      "date": "2026-06-12T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": "Course Online",
+      "note": "Ai Marketing",
+      "amount": 188000
+    },
+    {
+      "date": "2026-06-14T00:00:00",
+      "account": "BCA",
+      "category": "Expense",
+      "subcategory": null,
+      "note": "SEEING MOU",
+      "amount": 195000
+    }
+  ]
+}

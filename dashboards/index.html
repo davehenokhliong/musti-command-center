@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Musti Command Center</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#14171c; --panel2:#1b1f26; --line:#262b33;
+    --txt:#e8ecf1; --muted:#8a93a0; --accent:#6ea8fe; --green:#43d39e;
+    --orange:#ffb454; --purple:#b692ff; --red:#ff6b6b; --pink:#ff86c8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .app{display:flex;min-height:100vh}
+  /* Sidebar */
+  .sidebar{width:236px;background:var(--panel);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--purple));display:grid;place-items:center;font-size:18px}
+  .brand b{font-size:15px}.brand small{display:block;color:var(--muted);font-size:11px}
+  .nav{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+  .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--muted);font-weight:500}
+  .nav button:hover{background:var(--panel2);color:var(--txt)}
+  .nav button.active{background:var(--panel2);color:var(--txt)}
+  .nav button.active .dot{background:var(--green)}
+  .nav .dot{width:7px;height:7px;border-radius:50%;background:#3a414c}
+  .spacer{flex:1}
+  .user{display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--line);color:var(--muted)}
+  .user .av{width:30px;height:30px;border-radius:50%;background:var(--panel2);display:grid;place-items:center;color:var(--txt)}
+  /* Main */
+  .main{flex:1;padding:26px 30px;max-width:1280px}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .head h1{font-size:18px;margin:0;letter-spacing:.4px}
+  .head .sub{color:var(--muted);font-size:12px;margin-left:10px}
+  .live{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-size:12px}
+  .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(67,211,158,.5);animation:p 2s infinite}
+  @keyframes p{0%{box-shadow:0 0 0 0 rgba(67,211,158,.5)}70%{box-shadow:0 0 0 8px rgba(67,211,158,0)}100%{box-shadow:0 0 0 0 rgba(67,211,158,0)}}
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .kpi .label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+  .kpi .val{font-size:24px;font-weight:700;margin-top:8px}
+  .kpi .hint{color:var(--muted);font-size:11px;margin-top:4px}
+  .cols{grid-template-columns:1fr 1fr}
+  @media(max-width:900px){.cols{grid-template-columns:1fr}.sidebar{width:64px}.brand b,.brand small,.nav button span,.user .meta{display:none}}
+  h3.sec{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:0 0 12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:2px 9px;font-size:11px;margin:2px 3px 0 0}
+  .pill{font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:6px;font-weight:700}
+  .pill.business{background:rgba(110,168,254,.15);color:var(--accent)}
+  .pill.friend{background:rgba(67,211,158,.15);color:var(--green)}
+  .pill.employee{background:rgba(255,180,84,.15);color:var(--orange)}
+  .pill.investor,.pill.mentor{background:rgba(182,146,255,.15);color:var(--purple)}
+  .list li{margin:6px 0;color:var(--txt)}
+  .muted{color:var(--muted)}
+  .empty{color:var(--muted);text-align:center;padding:60px 20px;border:1px dashed var(--line);border-radius:14px}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  canvas{max-height:260px}
+  a{color:var(--accent)}
+  .mdh1{font-size:20px;margin:0 0 4px}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px}
+  .card p{margin:6px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">🎵</div><div><b>Musti</b><small>Command Center</small></div></div>
+    <nav class="nav" id="nav">
+      <button data-tab="who" class="active"><span class="dot"></span><span>Who You Are</span></button>
+      <button data-tab="portfolio"><span class="dot"></span><span>Portfolio</span></button>
+      <button data-tab="networking"><span class="dot"></span><span>Networking</span></button>
+      <button data-tab="knowledge"><span class="dot"></span><span>Knowledge</span></button>
+      <button data-tab="settings"><span class="dot"></span><span>Settings</span></button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="user"><div class="av">D</div><div class="meta"><b>Dave</b><small class="muted">Owner</small></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="head">
+      <div><h1 id="title">WHO YOU ARE</h1><span class="sub" id="subtitle">self profile</span></div>
+      <span class="live"><span class="pulse"></span> data live</span>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<script>
+const fmt = new Intl.NumberFormat('id-ID');
+const money = (n,cur='IDR') => (cur==='IDR' ? 'Rp' : cur+' ') + fmt.format(Math.round(n));
+const SIGN = t => /WITHDRAW|TRANSFER_OUT|SELL|FEE/i.test(t||'') ? -1 : 1;
+
+const DATA = {};
+async function load(name){ try{ const r=await fetch(`../data/${name}.json`); return await r.json(); }catch(e){ return null; } }
+async function loadText(file){ try{ const r=await fetch(`../data/${file}`); return await r.text(); }catch(e){ return ''; } }
+
+// minimal markdown -> HTML (headings, lists, bold, paragraphs); strips frontmatter
+function mdToHtml(md){
+  md = (md||'').replace(/^---[\s\S]*?---\s*/,'');
+  const lines = md.split('\n'); let html=''; let inList=false;
+  const close=()=>{ if(inList){html+='</ul>';inList=false;} };
+  for(let raw of lines){
+    const l=raw.trimEnd();
+    const b = s => s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/_(.+?)_/g,'<i>$1</i>');
+    if(/^#\s/.test(l)){close();html+=`<h2 class="mdh1">${b(l.slice(2))}</h2>`;}
+    else if(/^##\s/.test(l)){close();html+=`<h3 class="sec" style="margin-top:18px">${b(l.slice(3))}</h3>`;}
+    else if(/^[-*]\s/.test(l)){ if(!inList){html+='<ul class="list">';inList=true;} const item=b(l.replace(/^[-*]\s/,'')); if(item.trim())html+=`<li>${item}</li>`; }
+    else if(l.trim()===''){close();}
+    else {close();html+=`<p>${b(l)}</p>`;}
+  }
+  close(); return html;
+}
+
+async function boot(){
+  [DATA.profileMd, DATA.portfolio, DATA.expenses, DATA.networking] = await Promise.all(
+    [loadText('profile.md'), load('portfolio'), load('expenses'), load('networking')]);
+  render('who');
+}
+
+const TITLES = {
+  who:['WHO YOU ARE','self profile'], portfolio:['PORTFOLIO','investments · spending'],
+  networking:['NETWORKING','relationships'], knowledge:['KNOWLEDGE','from the brain'], settings:['SETTINGS','']
+};
+document.getElementById('nav').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); render(b.dataset.tab);
+});
+function render(tab){
+  document.getElementById('title').textContent=TITLES[tab][0];
+  document.getElementById('subtitle').textContent=TITLES[tab][1];
+  document.getElementById('view').innerHTML = '';
+  ({who:viewWho, portfolio:viewPortfolio, networking:viewNetworking, knowledge:viewKnowledge, settings:viewSettings}[tab])();
+}
+const el = h => { const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; };
+const V = () => document.getElementById('view');
+
+/* ---------- WHO YOU ARE (rendered from brain markdown) ---------- */
+function viewWho(){
+  const html = mdToHtml(DATA.profileMd);
+  V().append(el(`<div class="card">${html||'<p class="muted">who-i-am.md is empty.</p>'}
+    <div class="hint muted" style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px">
+      Source: <code>vault/profiles/who-i-am.md</code> in the brain repo — edit there, it syncs here.</div>
+  </div>`));
+}
+
+/* ---------- PORTFOLIO ---------- */
+function viewPortfolio(){
+  const txns = (DATA.portfolio&&DATA.portfolio.transactions)||[];
+  const exps = (DATA.expenses&&DATA.expenses.transactions)||[];
+
+  // asset positions (rows with a symbol): net quantity by symbol
+  const pos={};
+  txns.filter(t=>t.symbol).forEach(t=>{ pos[t.symbol]=(pos[t.symbol]||0)+ SIGN(t.type)*(+t.quantity||0); });
+  // cash flows by account+currency (rows without a symbol)
+  const cash={};
+  txns.filter(t=>!t.symbol).forEach(t=>{ const k=`${t.account}|${t.currency||'IDR'}`; cash[k]=(cash[k]||0)+SIGN(t.type)*(+t.amount||0); });
+  // expense totals
+  const expTotal = exps.reduce((s,e)=>s+(+e.amount||0),0);
+  const byCat={}; exps.forEach(e=>{const k=e.subcategory||e.category||'Lain'; byCat[k]=(byCat[k]||0)+(+e.amount||0);});
+  const byMonth={}; exps.forEach(e=>{const m=(e.date||'').slice(0,7); if(m)byMonth[m]=(byMonth[m]||0)+(+e.amount||0);});
+
+  const kpi=(label,val,hint,color)=>`<div class="card kpi"><div class="label">${label}</div><div class="val" style="color:${color||'var(--txt)'}">${val}</div><div class="hint">${hint||''}</div></div>`;
+
+  V().append(el(`<div class="grid kpis">
+    ${kpi('Asset Positions', Object.keys(pos).length, 'symbols held', 'var(--accent)')}
+    ${kpi('Cash Accounts', Object.keys(cash).length, 'account · currency', 'var(--green)')}
+    ${kpi('Transactions', txns.length, 'portfolio ledger', 'var(--purple)')}
+    ${kpi('Total Spending', money(expTotal), exps.length+' expenses logged', 'var(--orange)')}
+  </div>`));
+
+  // positions + cash tables
+  V().append(el(`<div class="grid cols" style="margin-top:14px">
+    <div class="card"><h3 class="sec">Asset Positions (net qty)</h3>
+      <table><thead><tr><th>Symbol</th><th class="num">Net Quantity</th></tr></thead><tbody>
+      ${Object.entries(pos).sort((a,b)=>b[1]-a[1]).map(([s,q])=>`<tr><td>${s}</td><td class="num">${q.toLocaleString('en',{maximumFractionDigits:8})}</td></tr>`).join('')||'<tr><td class="muted">none</td></tr>'}
+      </tbody></table>
+      <div class="hint muted" style="margin-top:8px">Live valuation needs a price feed — coming with the Sheets sync.</div>
+    </div>
+    <div class="card"><h3 class="sec">Cash by Account</h3>
+      <table><thead><tr><th>Account</th><th>Cur</th><th class="num">Net</th></tr></thead><tbody>
+      ${Object.entries(cash).map(([k,v])=>{const[a,c]=k.split('|');return `<tr><td>${a}</td><td>${c}</td><td class="num">${money(v,c)}</td></tr>`}).join('')}
+      </tbody></table>
+    </div>
+  </div>`));
+
+  // charts
+  V().append(el(`<div class="grid cols" style="margin-top:14px">
+    <div class="card"><h3 class="sec">Spending by Category</h3><canvas id="catChart"></canvas></div>
+    <div class="card"><h3 class="sec">Spending by Month</h3><canvas id="monChart"></canvas></div>
+  </div>`));
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  new Chart(document.getElementById('catChart'),{type:'doughnut',
+    data:{labels:cats.map(c=>c[0]),datasets:[{data:cats.map(c=>c[1]),
+      backgroundColor:['#6ea8fe','#43d39e','#ffb454','#b692ff','#ff6b6b','#ff86c8','#5ad1c9','#9aa3ad']}]},
+    options:{plugins:{legend:{position:'right',labels:{color:'#8a93a0',boxWidth:12}}}}});
+  const mons=Object.entries(byMonth).sort();
+  new Chart(document.getElementById('monChart'),{type:'bar',
+    data:{labels:mons.map(m=>m[0]),datasets:[{data:mons.map(m=>m[1]),backgroundColor:'#6ea8fe',borderRadius:6}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8a93a0'},grid:{display:false}},y:{ticks:{color:'#8a93a0'},grid:{color:'#262b33'}}}}});
+}
+
+/* ---------- NETWORKING ---------- */
+function viewNetworking(){
+  const cs=(DATA.networking&&DATA.networking.contacts)||[];
+  const groups={};
+  cs.forEach(c=>{(groups[c.relationship||'other']=groups[c.relationship||'other']||[]).push(c)});
+  if(!cs.length){ V().append(el('<div class="empty">No contacts yet. Add them in <b>networking.json</b> (or the Sheet later).</div>')); return; }
+  Object.entries(groups).forEach(([rel,arr])=>{
+    V().append(el(`<div class="card" style="margin-bottom:14px">
+      <h3 class="sec">${rel} · ${arr.length}</h3>
+      <table><thead><tr><th>Name</th><th>Company / Role</th><th>Context</th><th>Tags</th></tr></thead><tbody>
+      ${arr.map(c=>`<tr>
+        <td><b>${c.name||''}</b> <span class="pill ${rel}">${rel}</span></td>
+        <td>${[c.company,c.role].filter(Boolean).join(' · ')||'<span class=muted>—</span>'}</td>
+        <td class="muted">${c.context||''}</td>
+        <td>${(c.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</td>
+      </tr>`).join('')}
+      </tbody></table></div>`));
+  });
+}
+
+/* ---------- KNOWLEDGE ---------- */
+function viewKnowledge(){
+  V().append(el(`<div class="card">
+    <h3 class="sec">Knowledge — from the Brain</h3>
+    <p>This tab will outline your <b>PersonalBrain</b> (gbrain) — notes, profiles, and precedents — read-only.</p>
+    <div class="chip-row">
+      <span class="tag">profiles/how-dave-writes</span>
+      <span class="tag">precedents (1,589)</span>
+      <span class="tag">inbox notes</span>
+    </div>
+    <p class="muted" style="margin-top:14px">Next: wire this to the gbrain API on the VPS (search + outline), or render the brain repo's file tree.</p>
+  </div>`));
+}
+
+/* ---------- SETTINGS ---------- */
+function viewSettings(){
+  V().append(el('<div class="empty">Settings — coming soon.</div>'));
+}
+
+boot();
+</script>
+</body>
+</html>

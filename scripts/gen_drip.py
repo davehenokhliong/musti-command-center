@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Generate data/drip.json FROM the brain's energy-patterns.md.
 
-SINGLE SOURCE OF TRUTH = vault/profiles/energy-patterns.md (in the PersonalBrain repo).
+SINGLE SOURCE OF TRUTH = vault/areas/Area - Energy and DRIP.md (in the PersonalBrain repo).
 This script DERIVES the dashboard's drip.json from it, so the two never drift.
 Edit the markdown only; then run:  python3 scripts/gen_drip.py
 """
 import json, re, sys, pathlib
 
 HERE = pathlib.Path(__file__).resolve().parent.parent          # musti-command-center/
-SRC = HERE.parent / "SecondBrain" / "vault" / "profiles" / "energy-patterns.md"
+SRC = HERE.parent / "SecondBrain" / "vault" / "areas" / "Area - Energy and DRIP.md"
 OUT = HERE / "data" / "drip.json"
 
 # Fixed framework scaffolding (labels/hints don't change — only items do)
@@ -64,9 +64,9 @@ def main():
 
     out = {
         "_meta": {
-            "note": "GENERATED from vault/profiles/energy-patterns.md — DO NOT EDIT BY HAND. Run scripts/gen_drip.py.",
+            "note": "GENERATED from vault/areas/Area - Energy and DRIP.md — DO NOT EDIT BY HAND. Run scripts/gen_drip.py.",
             "framework": "Production = do more · Replacement = automate/hire · Investment = invest in · Delegation = delegate away",
-            "source": "PersonalBrain:vault/profiles/energy-patterns.md",
+            "source": "PersonalBrain:vault/areas/Area - Energy and DRIP.md",
             "lastReviewed": "",
         },
         "rhythm": {"peak": peak, "trough": trough},

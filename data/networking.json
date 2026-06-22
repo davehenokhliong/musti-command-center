@@ -2122,33 +2122,6 @@
           "fu": false
         }
       ]
-    },
-    {
-      "id": "uncategorized",
-      "label": "Uncategorized",
-      "icon": "📥",
-      "contacts": [
-        {
-          "name": "Terence Wong",
-          "role": "Choir guy",
-          "location": "Hong Kong",
-          "help": "Corporate connection",
-          "desc": "",
-          "ecosystem": "Family/Friends",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Kwan Yin Yee",
-          "role": "HKU Music Librarian",
-          "location": "Hong Kong",
-          "help": "Referral",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "‪+62 816‑1851‑566‬",
-          "fu": false
-        }
-      ]
     }
   ]
 }

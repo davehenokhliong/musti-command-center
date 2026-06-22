@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Musti Command Center</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23a3e635'/%3E%3Ctext x='50' y='52' font-size='56' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%8E%B5%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -68,6 +69,14 @@
   .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   canvas{max-height:260px}
   a{color:var(--accent)}
+  /* segmented pill control (matches company dashboard) */
+  .seg{display:inline-flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px}
+  .seg button{all:unset;cursor:pointer;padding:8px 16px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .seg button:hover{color:var(--txt)}
+  .seg button.active{background:var(--panel2);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line)}
+  .seg button .cnt{font-size:10px;color:var(--faint);font-weight:600}
+  .seg button.active .cnt{color:var(--lime)}
+  .segwrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px;overflow-x:auto}
   .mdh1{font-size:20px;margin:0 0 4px}
   code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px}
   .card p{margin:6px 0}
@@ -211,83 +220,72 @@ function viewDrip(){
 /* ---------- PORTFOLIO (your exact original app, embedded) ---------- */
 function viewPortfolio(){
   V().append(el(`<iframe src="./portfolio_legacy.html"
-    style="width:100%;height:calc(100vh - 130px);border:1px solid var(--line);border-radius:14px;background:#fff"
+    style="width:100%;height:calc(100vh - 130px);border:1px solid var(--line);border-radius:14px;background:var(--bg)"
     title="Portfolio"></iframe>`));
 }
 
-/* ---------- NETWORKING ---------- */
-const PC_COLOR = {'Top 5':'#a3e635','Key 50':'#60a5fa','Vital 100':'#a78bfa','':'#52525b'};
-const FU_META = {
-  stale:   {label:'OVERDUE', color:'#f87171'},
-  nurture: {label:'KEEP WARM', color:'#fbbf24'},
-  hitlist: {label:'REACH OUT', color:'#34d399'}
-};
-function pcPill(pc){ const c=PC_COLOR[pc]||'#52525b'; return pc?`<span class="tag" style="border-color:${c}66;color:${c}">${pc}</span>`:''; }
-
+/* ---------- NETWORKING (category sub-tabs) ---------- */
+let NET_TAB = 'followups';
+function chan(c){
+  const out=[];
+  if(c.ig) out.push('IG '+c.ig.replace(/^IG:?\s*/i,''));
+  if(c.tiktok) out.push('TT '+c.tiktok.replace(/^TikTok:?\s*/i,''));
+  if(c.wa) out.push(c.wa);
+  return out.join(' · ');
+}
 function viewNetworking(){
   const n = DATA.networking||{};
-  const conns = n.connections||[]; const hit = n.hitlist||[]; const fus = n.followUps||[];
-  if(!conns.length && !hit.length){ V().append(el('<div class="empty">No contacts yet. Add them in <b>networking.json</b>.</div>')); return; }
+  const cats = n.categories||[]; const fus = n.followUps||[];
+  if(!cats.length){ V().append(el('<div class="empty">No contacts yet. Add them in <b>networking.json</b>.</div>')); return; }
+  const total = cats.reduce((s,c)=>s+c.contacts.length,0);
 
-  // KPIs
-  const top5 = conns.filter(c=>c.powerCircle==='Top 5').length;
-  const key50 = conns.filter(c=>c.powerCircle==='Key 50').length;
-  V().append(el(`<div class="grid kpis" style="margin-bottom:16px">
-    <div class="card kpi"><div class="label">Connections</div><div class="val">${conns.length}</div><div class="hint">tracked relationships</div></div>
-    <div class="card kpi"><div class="label">Inner circle</div><div class="val">${top5} · ${key50}</div><div class="hint">Top 5 · Key 50</div></div>
-    <div class="card kpi"><div class="label">Hitlist</div><div class="val">${hit.length}</div><div class="hint">not yet reached</div></div>
-    <div class="card kpi"><div class="label">Follow-ups due</div><div class="val" style="color:var(--lime)">${fus.length}</div><div class="hint">recommended this week</div></div>
-  </div>`));
-
-  // FOLLOW-UP RECOMMENDATIONS
-  if(fus.length){
-    V().append(el(`<div class="card" style="margin-bottom:16px;border-color:#a3e63533">
-      <h3 class="sec" style="color:var(--lime)">🔔 Follow-up recommendations — people you haven't contacted in a while</h3>
-      <table><thead><tr><th>Name</th><th>Circle</th><th>Why reach out</th><th>Status</th></tr></thead><tbody>
-      ${fus.map(f=>{const m=FU_META[f.type]||{label:f.type,color:'#a1a1aa'};return `<tr>
-        <td><b>${f.name}</b><div class="muted" style="font-size:11px">${f.reason||''}</div></td>
-        <td>${pcPill(f.powerCircle)}</td>
-        <td class="muted">${f.why||'—'}</td>
-        <td><span class="pill" style="background:${m.color}22;color:${m.color}">${m.label}</span></td>
-      </tr>`}).join('')}
-      </tbody></table>
-      <div class="hint muted" style="margin-top:10px">Ranked: overdue (logged contact &gt;3mo) → Key-50 to keep warm → hitlist. Source: <code>MM - Networking.xlsx</code>.</div>
-    </div>`));
-  }
-
-  // CONNECTIONS by ecosystem
-  const groups={};
-  conns.forEach(c=>{(groups[c.ecosystem||'Other']=groups[c.ecosystem||'Other']||[]).push(c)});
-  const order=['Family/Friends','Career','Passion/Interest','Community','Finance','Media','Government','Other'];
-  const keys=Object.keys(groups).sort((a,b)=>(order.indexOf(a)+1||99)-(order.indexOf(b)+1||99));
-  keys.forEach(eco=>{
-    const arr=groups[eco].sort((a,b)=>['Top 5','Key 50','Vital 100',''].indexOf(a.powerCircle)-['Top 5','Key 50','Vital 100',''].indexOf(b.powerCircle));
-    V().append(el(`<div class="card" style="margin-bottom:14px">
-      <h3 class="sec">${eco} · ${arr.length}</h3>
-      <table><thead><tr><th>Name</th><th>Role</th><th>Location</th><th>How they can help</th><th>Circle</th></tr></thead><tbody>
-      ${arr.map(c=>`<tr>
-        <td><b>${c.name}</b>${c.lastContact?`<div class="muted" style="font-size:11px">last: ${c.lastContact}</div>`:''}</td>
-        <td class="muted">${c.role||'—'}</td>
-        <td class="muted">${c.location||'—'}</td>
-        <td class="muted">${c.howTheyHelp||'—'}</td>
-        <td>${pcPill(c.powerCircle)}</td>
-      </tr>`).join('')}
-      </tbody></table></div>`));
+  // segmented pill control: Follow-ups + one per category
+  const segBtn = (id,label,cnt,active)=>`<button data-net="${id}" class="${active?'active':''}">${label}<span class="cnt">${cnt}</span></button>`;
+  let segs = segBtn('followups','🔔 Follow-ups',fus.length, NET_TAB==='followups');
+  segs += cats.map(c=>segBtn(c.id, `${c.icon||''} ${c.label}`, c.contacts.length, NET_TAB===c.id)).join('');
+  V().append(el(`<div class="segwrap"><div class="seg">${segs}</div>
+    <span class="muted" style="font-size:12px;margin-left:auto">${total} contacts · source: <code>MM - Networking.xlsx</code></span></div>`));
+  V().querySelector('.seg').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return; NET_TAB=b.dataset.net; render('networking');
   });
 
-  // HITLIST
-  if(hit.length){
-    V().append(el(`<div class="card" style="margin-bottom:14px">
-      <h3 class="sec" style="color:var(--green)">🎯 Hitlist · ${hit.length} — collab / outreach targets</h3>
-      <table><thead><tr><th>Name</th><th>Role</th><th>How they can help</th><th>Channel</th></tr></thead><tbody>
-      ${hit.map(c=>`<tr>
-        <td><b>${c.name}</b></td>
-        <td class="muted">${c.role||'—'}</td>
-        <td class="muted">${c.howTheyHelp||'—'}</td>
-        <td>${c.contact?`<span class="tag">${c.contact}</span>`:'<span class=muted>—</span>'}</td>
-      </tr>`).join('')}
-      </tbody></table></div>`));
-  }
+  if(NET_TAB==='followups'){ renderFollowups(fus); return; }
+  const cat = cats.find(c=>c.id===NET_TAB) || cats[0];
+  renderCategory(cat);
+}
+function renderFollowups(fus){
+  if(!fus.length){ V().append(el('<div class="empty">No follow-ups flagged. Mark contacts <code>FU=TRUE</code> or add a reach-out date in the sheet.</div>')); return; }
+  V().append(el(`<div class="card" style="border-color:#a3e63533">
+    <h3 class="sec" style="color:var(--lime)">People to reconnect with — flagged, or not contacted in a while</h3>
+    <table><thead><tr><th>Name</th><th>Category</th><th>Why reach out</th><th>Status</th></tr></thead><tbody>
+    ${fus.map(f=>`<tr>
+      <td><b>${f.name}</b></td>
+      <td class="muted">${f.category||''}</td>
+      <td class="muted">${f.why||'—'}</td>
+      <td><span class="pill" style="background:#a3e63522;color:var(--lime)">${f.reason||'follow up'}</span></td>
+    </tr>`).join('')}
+    </tbody></table></div>`));
+}
+function renderCategory(cat){
+  const arr=cat.contacts;
+  if(!arr.length){ V().append(el(`<div class="empty">No contacts in ${cat.label} yet.</div>`)); return; }
+  const flagged = arr.filter(c=>c.fu).length;
+  V().append(el(`<div class="grid kpis" style="margin-bottom:16px">
+    <div class="card kpi"><div class="label">${cat.label}</div><div class="val" style="color:var(--accent)">${arr.length}</div><div class="hint">contacts</div></div>
+    <div class="card kpi"><div class="label">Flagged FU</div><div class="val" style="color:var(--lime)">${flagged}</div><div class="hint">need follow-up</div></div>
+  </div>`));
+  const isUncat = cat.id==='uncategorized';
+  V().append(el(`<div class="card">
+    ${isUncat?'<div class="hint muted" style="margin-bottom:10px">⚠️ In the Connections master but not yet filed into a category sheet — assign them an ecosystem.</div>':''}
+    <table><thead><tr><th>Name</th><th>Role / Desc</th><th>${isUncat?'Ecosystem':'How they help'}</th><th>Channel</th><th></th></tr></thead><tbody>
+    ${arr.map(c=>`<tr>
+      <td><b>${c.name}</b>${c.location?`<div class="muted" style="font-size:11px">${c.location}</div>`:''}</td>
+      <td class="muted">${[c.role,c.company,c.desc,c.industry].filter(Boolean).join(' · ')||'—'}</td>
+      <td class="muted">${(isUncat?c.ecosystem:(c.help||c.opportunity))||'—'}</td>
+      <td class="muted" style="font-size:12px">${chan(c)||'—'}</td>
+      <td>${c.fu?'<span class="pill" style="background:#a3e63522;color:var(--lime)">FU</span>':''}</td>
+    </tr>`).join('')}
+    </tbody></table></div>`));
 }
 
 /* ---------- KNOWLEDGE ---------- */

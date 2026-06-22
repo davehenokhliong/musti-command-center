@@ -694,6 +694,106 @@
           "fu": false,
           "opportunity": "",
           "notes": ""
+        },
+        {
+          "name": "Fahrul F",
+          "role": "MM Employee",
+          "location": "Jakarta",
+          "help": "Data advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": ".Vegalino Celonandita N.",
+          "role": "MM Employee",
+          "location": "Bali",
+          "help": "Design advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Klein Edbert Tjundawan Lim",
+          "role": "MM Employee",
+          "location": "China/Tangerang",
+          "help": "Tech advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Hanif Al Aslam",
+          "role": "MM Employee",
+          "location": "Pontianak",
+          "help": "Ads advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Farhan Isnaini Zidan",
+          "role": "MM Employee",
+          "location": "Jakarta",
+          "help": "Tech advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Eduardo Cahyadi",
+          "role": "MM Employee",
+          "location": "Bondowoso",
+          "help": "Academy work ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Randy Verdian",
+          "role": "MM Employee",
+          "location": "Jakarta",
+          "help": "Data advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Daffa Muhammad A.F.",
+          "role": "MM Employee",
+          "location": "Sukabumi",
+          "help": "Tech advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Sabrina Wahyu S.",
+          "role": "MM Employee",
+          "location": "Sidoarjo",
+          "help": "Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Lintang Angkoso",
+          "role": "MM Employee",
+          "location": "Jakarta",
+          "help": "Ads advice ·  · Talent source",
+          "desc": "",
+          "company": "Musti Musik",
+          "wa": "",
+          "fu": false
         }
       ]
     },
@@ -1251,6 +1351,56 @@
           "desc": "Info",
           "fu": false,
           "fuDate": ""
+        },
+        {
+          "name": "Natasya Elvira",
+          "role": "Societet Harmonie",
+          "location": "Jkt",
+          "help": "",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Jason Mountario",
+          "role": "Jazz piano mentor",
+          "location": "Jakarta",
+          "help": "Music industry connection ·  · Music knowledge",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Sri Hanuraga",
+          "role": "Jazz piano mentor",
+          "location": "Jakarta",
+          "help": "Music industry connection ·  · Music knowledge",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Irfian Suhatam",
+          "role": "Jazz piano mentor",
+          "location": "Jakarta",
+          "help": "Music industry connection ·  · Music knowledge",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Dorothy",
+          "role": "Ex Kawai school principal",
+          "location": "Jakarta",
+          "help": "Music industry connection ·  · Music school insights",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
         }
       ]
     },
@@ -1608,6 +1758,36 @@
           "reachOut": "",
           "fu": false,
           "notes": ""
+        },
+        {
+          "name": "Fenny Rustan",
+          "role": "MM active member",
+          "location": "Kebon Jeruk, Jkt",
+          "help": "Capital ·  · Music industry connection",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "JVD",
+          "role": "Uni friend",
+          "location": "Hong Kong",
+          "help": "Corporate connection ·  · Friendship",
+          "desc": "",
+          "company": "",
+          "wa": "",
+          "fu": false
+        },
+        {
+          "name": "Ignatius Loyola (Iyus)",
+          "role": "SMP friend",
+          "location": "Jakarta",
+          "help": "Corporate connection ·  · Capital",
+          "desc": "",
+          "company": "",
+          "wa": "628111973379",
+          "fu": false
         }
       ]
     },
@@ -1930,6 +2110,16 @@
           "desc": "Info",
           "fu": false,
           "fuDate": ""
+        },
+        {
+          "name": "Audrey Utoyo",
+          "role": "News anchor",
+          "location": "Jkt",
+          "help": "",
+          "desc": "",
+          "company": "",
+          "wa": "IG: audreyeugenee",
+          "fu": false
         }
       ]
     },
@@ -1938,86 +2128,6 @@
       "label": "Uncategorized",
       "icon": "📥",
       "contacts": [
-        {
-          "name": "Fenny Rustan",
-          "role": "MM active member",
-          "location": "Kebon Jeruk, Jkt",
-          "help": "Capital ·  · Music industry connection",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Audrey Utoyo",
-          "role": "News anchor",
-          "location": "Jkt",
-          "help": "",
-          "desc": "",
-          "ecosystem": "Media",
-          "wa": "IG: audreyeugenee",
-          "fu": false
-        },
-        {
-          "name": "Natasya Elvira",
-          "role": "Societet Harmonie",
-          "location": "Jkt",
-          "help": "",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Jason Mountario",
-          "role": "Jazz piano mentor",
-          "location": "Jakarta",
-          "help": "Music industry connection ·  · Music knowledge",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Sri Hanuraga",
-          "role": "Jazz piano mentor",
-          "location": "Jakarta",
-          "help": "Music industry connection ·  · Music knowledge",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Irfian Suhatam",
-          "role": "Jazz piano mentor",
-          "location": "Jakarta",
-          "help": "Music industry connection ·  · Music knowledge",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Dorothy",
-          "role": "Ex Kawai school principal",
-          "location": "Jakarta",
-          "help": "Music industry connection ·  · Music school insights",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "JVD",
-          "role": "Uni friend",
-          "location": "Hong Kong",
-          "help": "Corporate connection ·  · Friendship",
-          "desc": "",
-          "ecosystem": "Family/Friends",
-          "wa": "",
-          "fu": false
-        },
         {
           "name": "Terence Wong",
           "role": "Choir guy",
@@ -2029,116 +2139,6 @@
           "fu": false
         },
         {
-          "name": "Ignatius Loyola (Iyus)",
-          "role": "SMP friend",
-          "location": "Jakarta",
-          "help": "Corporate connection ·  · Capital",
-          "desc": "",
-          "ecosystem": "Family/Friends",
-          "wa": "628111973379",
-          "fu": false
-        },
-        {
-          "name": "Fahrul F",
-          "role": "MM Employee",
-          "location": "Jakarta",
-          "help": "Data advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": ".Vegalino Celonandita N.",
-          "role": "MM Employee",
-          "location": "Bali",
-          "help": "Design advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Klein Edbert Tjundawan Lim",
-          "role": "MM Employee",
-          "location": "China/Tangerang",
-          "help": "Tech advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Hanif Al Aslam",
-          "role": "MM Employee",
-          "location": "Pontianak",
-          "help": "Ads advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Farhan Isnaini Zidan",
-          "role": "MM Employee",
-          "location": "Jakarta",
-          "help": "Tech advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Eduardo Cahyadi",
-          "role": "MM Employee",
-          "location": "Bondowoso",
-          "help": "Academy work ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Randy Verdian",
-          "role": "MM Employee",
-          "location": "Jakarta",
-          "help": "Data advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Daffa Muhammad A.F.",
-          "role": "MM Employee",
-          "location": "Sukabumi",
-          "help": "Tech advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Sabrina Wahyu S.",
-          "role": "MM Employee",
-          "location": "Sidoarjo",
-          "help": "Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Lintang Angkoso",
-          "role": "MM Employee",
-          "location": "Jakarta",
-          "help": "Ads advice ·  · Talent source",
-          "desc": "",
-          "ecosystem": "Career",
-          "wa": "",
-          "fu": false
-        },
-        {
           "name": "Kwan Yin Yee",
           "role": "HKU Music Librarian",
           "location": "Hong Kong",
@@ -2146,26 +2146,6 @@
           "desc": "",
           "ecosystem": "Passion/Interest",
           "wa": "‪+62 816‑1851‑566‬",
-          "fu": false
-        },
-        {
-          "name": "Nieves Yang",
-          "role": "SHC Music Club",
-          "location": "Spain",
-          "help": "Spain connection",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
-          "fu": false
-        },
-        {
-          "name": "Jiyun",
-          "role": "SHC Music Club",
-          "location": "Korea",
-          "help": "Korea connection",
-          "desc": "",
-          "ecosystem": "Passion/Interest",
-          "wa": "",
           "fu": false
         }
       ]

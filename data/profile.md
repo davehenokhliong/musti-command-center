@@ -12,14 +12,17 @@ tags: [profile, self, identity, goals]
 ## Summary
 Founder & CEO of Musti Musik — an online jazz/pop/gospel piano education platform I started at 20. Now 3,000+ community members, 1,000+ premium students, 10,000+ free-class registrants, 100+ structured modules, 5K+ webinar attendees, and a 100-student private music school. Trained pianist: playing in church since 13, two Jazz Piano diplomas from London College of Music at 17 (95/100 & 94/100), and a BEng in Electronics Engineering from HKU (First Class Honours, GPA 3.71/4.3, 6+ scholarships). Two-time HKU Music Festival winner with my own compositions (_Drizzle_, _Pilgrimage_). Session pianist for the Indonesian Consulate General in Hong Kong. 200K+ social following, 20M+ impressions. A builder at heart — I turn vision into product, content, and systems, lead with warmth, sell from conviction, and move fast.
 
-**Full story notes:** [[musti-musik-story]] · [[music-journey]] · [[faith-journey]] · [[dian]]
+Also a **technical builder**: HKU Electronics Engineering with a Data & AI Systems focus, and a genuine passion for coding — AGI, web dev, chatbots, websites, and SaaS. I build my own tools (this second brain + command center included). Portfolio: [[tech-builder-profile]] (davehenokhliong.vercel.app).
+
+**Full story notes:** [[musti-musik-story]] · [[music-journey]] · [[faith-journey]] · [[dian]] · [[tech-builder-profile]]
 
 ## Strengths
 - Vision + execution across product, marketing, and ops
 - Communicates with warmth; builds loyal relationships
 - Selling & teaching from conviction — energized by webinars and closing
 - Strategic + marketing instinct; builds leverage (content, automation, team)
-- Discipline & perseverance (top-20/300 in school, highest GPA in dept, HK$50k startup funding)
+- Technical: codes & ships own tools (AI, chatbots, web, SaaS) — rare combo with the music/business side
+- Discipline & perseverance (top-20/300 in school, First Class at HKU, HK$50k startup funding)
 
 ## Weaknesses / Watch-outs
 - Can over-index on doing vs delegating

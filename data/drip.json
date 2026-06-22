@@ -12,8 +12,8 @@
   "drains": ["Being scolded (dimarahin)", "Teaching all day", "Re-explaining to employees", "Teaching students who never practice"],
   "quadrants": {
     "production": { "label": "Production", "hint": "money + joy → DO MORE", "items": ["Content creation", "Strategy"] },
-    "replacement": { "label": "Replacement", "hint": "money, low joy → automate / hire to replace", "items": ["Video revision", "Finance", "Ide konten", "Buat lagu"] },
-    "investment": { "label": "Investment", "hint": "joy, low money → invest in (compounds)", "items": ["Physical activity", "Latihan piano", "Networking", "Baca buku"] },
+    "replacement": { "label": "Replacement", "hint": "money, low joy → automate / hire to replace", "items": ["Video revision", "Finance", "Ide konten", "Buat lagu", "Tiktok live"] },
+    "investment": { "label": "Investment", "hint": "joy, low money → invest in (compounds)", "items": ["Physical activity", "Latihan piano", "Networking", "Baca buku", "Belajar AI"] },
     "delegation": { "label": "Delegation", "hint": "low money, low joy → delegate away", "items": [] }
   }
 }

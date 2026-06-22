@@ -10,7 +10,9 @@ tags: [profile, self, identity, goals]
 **Tagline:** Building music education at scale; investing alongside it.
 
 ## Summary
-Founder of Musti Musik — a music education company I started at 20 that now reaches 1000+ students through bootcamps and an online academy, running 3-digit (juta) monthly revenue on a cash basis. Trained as a pianist (playing in church since 13), educated at HKU on scholarship with the highest GPA in my department, and a builder at heart: I turn vision into product, content, and systems. I lead with warmth, sell from conviction, and move fast.
+Founder & CEO of Musti Musik — an online jazz/pop/gospel piano education platform I started at 20. Now 3,000+ community members, 1,000+ premium students, 10,000+ free-class registrants, 100+ structured modules, 5K+ webinar attendees, and a 100-student private music school. Trained pianist: playing in church since 13, two Jazz Piano diplomas from London College of Music at 17 (95/100 & 94/100), and a BEng in Electronics Engineering from HKU (First Class Honours, GPA 3.71/4.3, 6+ scholarships). Two-time HKU Music Festival winner with my own compositions (_Drizzle_, _Pilgrimage_). Session pianist for the Indonesian Consulate General in Hong Kong. 200K+ social following, 20M+ impressions. A builder at heart — I turn vision into product, content, and systems, lead with warmth, sell from conviction, and move fast.
+
+**Full story notes:** [[musti-musik-story]] · [[music-journey]] · [[faith-journey]] · [[dian]]
 
 ## Strengths
 - Vision + execution across product, marketing, and ops
@@ -42,11 +44,13 @@ Founder of Musti Musik — a music education company I started at 20 that now re
 - Raise capital + sharpen strategy (see goals below)
 
 ## 🏆 Accomplishments
-- **Musti Musik** — founded at age 20; 1000+ students via bootcamps + online academy; 3-digit (juta) monthly revenue, cash basis _(leadership, strategy, marketing)_
-- **The University of Hong Kong** — multiple scholarships, highest GPA in department; founder of the music club; HKU Music Festival winner; HKU music mentor _(teamwork, leadership, discipline, passion)_
+- **Musti Musik** — founded at 20; 3,000+ community, 1,000+ premium students, 10,000+ free-class registrants, 100+ modules, partnerships with Roland/Kawai/Korg/Omah Library _(leadership, strategy, marketing)_ — see [[musti-musik-story]]
+- **Music** — 2 Jazz Piano diplomas (London College of Music, age 17, 95 & 94/100); 2× HKU Music Festival winner (_Drizzle_, _Pilgrimage_); session pianist for Indonesian Consulate General HK (played for Min. Erick Thohir, BNI, OJK) — see [[music-journey]]
+- **The University of Hong Kong** — BEng Electronics Engineering, First Class Honours, GPA 3.71/4.3, 6+ scholarships; founder & president of Shun Hing College Music Club (60+ members); advanced jazz piano mentor at HKU Music Society _(teamwork, leadership, discipline, passion)_
 - **HKSTP** — funded HK$50,000 for a startup _(strong pitch deck, sales skills)_
-- **SMAK 1 Penabur Jakarta** — ranked top 20 of 300; highest school-exam score _(discipline, perseverance)_
-- **Church** — playing piano (ngiring) since age 13 _(piano skills)_
+- **Early ventures** — siomay business at 18/19 (HPP 20rb → jual 200rb, profit jutaan, 1-on-1 selling); social-media agency (early, pro-bono)
+- **SMAK 1 Penabur Jakarta** — top 20 of 300; highest school-exam score _(discipline, perseverance)_
+- **Church** — playing piano since 13, debut in front of the congregation _(piano skills, mental toughness)_ — see [[faith-journey]]
 
 ## 🎯 Goals
 - **3 months** — Fix fundraising: I struggle to ask for the amount I want. → Build negotiation skills + a stronger business plan & budget to make the case effectively.

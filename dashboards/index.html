@@ -189,6 +189,7 @@ document.getElementById('nav').addEventListener('click',e=>{
 function render(tab){
   document.getElementById('title').textContent=TITLES[tab][0];
   document.getElementById('subtitle').textContent=TITLES[tab][1];
+  const head=document.querySelector('.head'); if(head) head.style.display = tab==='portfolio'?'none':'';
   document.getElementById('view').innerHTML = '';
   ({who:viewWho, portfolio:viewPortfolio, networking:viewNetworking, knowledge:viewKnowledge, settings:viewSettings}[tab])();
 }

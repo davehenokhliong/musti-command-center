@@ -89,7 +89,7 @@
     background: none;
     border: none;
     color: var(--muted2);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     padding: 14px 18px 12px;
@@ -610,24 +610,6 @@
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="brand">
-    <div class="brand-mark">W</div>
-    <div class="brand-text">
-      <div class="eyebrow">Wealthfolio · Personal</div>
-      <h1>Dashboard Investasi</h1>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="total-block">
-      <div class="total-label">Total Nilai Portfolio</div>
-      <div class="total-val">Rp 1.356.824.966</div>
-      <div class="total-delta c-green">+Rp 33.955.720 · +2,57% dari modal bersih</div>
-    </div>
-  </div>
-</div>
-
 <!-- TABS -->
 <div class="tabnav" id="tabnav">
   <button class="tabbtn active" data-tab="overview">
@@ -654,6 +636,13 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="14.5" r="1.4"/></svg>
     Spending Tracker
   </button>
+</div>
+
+<!-- TOTAL PORTFOLIO VALUE (moved below tabs for breathing room) -->
+<div class="total-block" style="padding:24px 0 4px">
+  <div class="total-label">Total Nilai Portfolio</div>
+  <div class="total-val">Rp 1.356.824.966</div>
+  <div class="total-delta c-green">+Rp 33.955.720 · +2,57% dari modal bersih</div>
 </div>
 
 <!-- ============ OVERVIEW PANEL ============ -->
@@ -1590,20 +1579,22 @@
     {"id": "txn056", "date": "2025-01-02", "type": "transfer_in", "account": "INDODAX", "accountColor": "#f59e0b", "desc": "Utk menyamakan dalam sisi indodaxnya", "qty": "—", "price": "—", "amount": 250500406.78, "currency": "IDR", "fee": "—"},
   ];
 
-  // ---- localStorage persistence for manually-added investment transactions ----
-  const TXN_STORAGE_KEY = 'wf_dashboard_custom_txns_v1';
-  function getCustomTxns() {
-    try {
-      const raw = localStorage.getItem(TXN_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
+  // ---- DB-backed investment transactions (via /api/portfolio) ----
+  const ACCOUNT_COLORS = { SUPERBANK:'#5b8def', Pluang:'#a78bfa', INDODAX:'#f7931a', BIBIT:'#22c55e', GOTRADE:'#e879f9' };
+  const DB_TYPE_MAP = { DEPOSIT:'deposit', INTEREST:'interest', TRANSFER_IN:'transfer_in', TRANSFER_OUT:'transfer_out', BUY:'buy', SELL:'sell', FEE:'fee', TRANSFER:'transfer', WITHDRAW:'transfer_out' };
+  let TXNS = [];
+  function toDisplayTxn(r) {
+    return { id:'db'+r.id, _dbid:r.id, date:String(r.date||'').slice(0,10),
+      type: DB_TYPE_MAP[r.type] || String(r.type||'').toLowerCase(),
+      account: r.account||'—', accountColor: ACCOUNT_COLORS[r.account]||'#888780',
+      desc: r.comment || '',
+      qty: r.quantity!=null ? (Number(r.quantity)+' '+(r.symbol||'')).trim() : '—',
+      price: r.price!=null ? ((r.currency==='USD'?'$':'Rp ')+Number(r.price).toLocaleString('id-ID')) : '—',
+      amount: Number(r.amount)||0, currency: r.currency||'IDR', fee: (r.fee!=null?r.fee:'—') };
   }
-  function saveCustomTxns(list) {
-    try { localStorage.setItem(TXN_STORAGE_KEY, JSON.stringify(list)); } catch (e) { console.error('Gagal simpan transaksi:', e); }
-  }
-  function getAllTxns() {
-    return [...BASE_TXN_DATA, ...getCustomTxns()];
-  }
+  async function loadTxns() { try { const res=await fetch('/api/portfolio'); TXNS=(await res.json()).map(toDisplayTxn); } catch(e){ console.error('load txns',e); TXNS=[]; } }
+  function getAllTxns() { return TXNS; }
+  async function refreshTxns() { await loadTxns(); const chip=document.querySelector('#txnChipGroup .chip.active'); renderTxnTable(chip?chip.dataset.type:'all'); renderTxnSummary(); }
 
   const TXN_TYPE_META = {
     deposit:      { label: 'Deposit',  cls: 'type-deposit',  icon: '↓' },
@@ -1624,13 +1615,11 @@
     return sign + prefix + formatted;
   }
 
-  function deleteCustomTxn(id) {
-    const list = getCustomTxns().filter(t => t.id !== id);
-    saveCustomTxns(list);
-    const activeChip = document.querySelector('#txnChipGroup .chip.active');
-    renderTxnTable(activeChip ? activeChip.dataset.type : 'all');
-    renderTxnSummary();
-    showToast('Transaksi dihapus');
+  async function deleteCustomTxn(id) {
+    const t = TXNS.find(x => x.id === id); if (!t || !t._dbid) return;
+    if (!confirm('Hapus transaksi ini?')) return;
+    try { await fetch('/api/portfolio/' + t._dbid, { method:'DELETE' }); await refreshTxns(); showToast('Transaksi dihapus'); }
+    catch (e) { showToast('Gagal hapus transaksi'); }
   }
 
   function renderTxnSummary() {
@@ -1668,11 +1657,11 @@
         <td style="font-size:12.5px;color:var(--muted2);white-space:nowrap;">${dateStr}</td>
         <td><span class="activity-type ${meta.cls}">${meta.icon} ${meta.label}</span></td>
         <td><span class="txn-acct-pill"><span class="txn-acct-dot" style="background:${txn.accountColor || '#8890aa'}"></span>${txn.account}</span></td>
-        <td style="font-size:13px;">${txn.desc}${isCustom ? '<span class="custom-row-badge">MANUAL</span>' : ''}</td>
+        <td style="font-size:13px;">${txn.desc || '—'}</td>
         <td class="r" style="color:var(--muted2)">${txn.qty || '—'}</td>
         <td class="r" style="color:var(--muted2)">${txn.price || '—'}</td>
         <td class="r"><span class="${amountClass}">${fmtTxnAmount(txn.amount, txn.currency)}</span></td>
-        <td class="r">${isCustom ? `<button class="row-del-btn" data-del-id="${txn.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>` : ''}</td>
+        <td class="r"><button class="row-del-btn" data-del-id="${txn.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -1690,8 +1679,7 @@
     });
   });
 
-  renderTxnTable('all');
-  renderTxnSummary();
+  loadTxns().then(() => { renderTxnTable('all'); renderTxnSummary(); });
 
   // ===================== SPENDING TRACKER (BCA — all transactions as outflow) =====================
   // ---- localStorage persistence for manually-added BCA spending ----
@@ -1996,22 +1984,15 @@
     }
     txnFormError.classList.remove('show');
 
-    const newTxn = {
-      id: genId('c'),
-      date, type, account,
-      accountColor: '#5b8def',
-      desc, qty: qty || '—', price: price || '—',
-      amount: parseFloat(amountRaw),
+    const body = {
+      date, type: (type || '').toUpperCase(), account,
+      amount: parseFloat(amountRaw), currency: 'IDR',
+      comment: desc + (qty ? ' · ' + qty : '') + (price ? ' @ ' + price : '')
     };
-    const list = getCustomTxns();
-    list.push(newTxn);
-    saveCustomTxns(list);
-
-    const activeChip = document.querySelector('#txnChipGroup .chip.active');
-    renderTxnTable(activeChip ? activeChip.dataset.type : 'all');
-    renderTxnSummary();
-    closeAddTxnModal();
-    showToast('Transaksi berhasil ditambahkan');
+    fetch('/api/portfolio', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+      .then(() => refreshTxns())
+      .then(() => { closeAddTxnModal(); showToast('Transaksi berhasil ditambahkan'); })
+      .catch(() => showToast('Gagal menambah transaksi'));
   });
 
   // ===================== ADD EXPENSE MODAL (Spending Tracker BCA) =====================

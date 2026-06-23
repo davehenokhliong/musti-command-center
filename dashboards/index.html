@@ -117,6 +117,37 @@ const DATA = {};
 async function load(name){ try{ const r=await fetch(`../data/${name}.json`); return await r.json(); }catch(e){ return null; } }
 async function loadText(file){ try{ const r=await fetch(`../data/${file}`); return await r.text(); }catch(e){ return ''; } }
 
+/* ---------- API (CRUD over personal Postgres) ---------- */
+async function api(path, opts){
+  const r = await fetch('/api'+path, { headers:{'Content-Type':'application/json'}, ...opts });
+  if(!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  return r.status===204 ? null : r.json();
+}
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const escJs = s => String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+const NET_CATS = {
+  business:{label:'Business',icon:'💼'}, music:{label:'Music',icon:'🎵'},
+  personal:{label:'Personal',icon:'🤝'}, community:{label:'Community',icon:'⛪'},
+  government:{label:'Government',icon:'🏛️'}
+};
+let NET_BY_ID = {};
+function buildNetworking(rows){
+  NET_BY_ID = {}; rows.forEach(r=>{ NET_BY_ID[r.id]=r; });
+  const order=['business','music','personal','community','government'];
+  const byCat={}; rows.forEach(r=>{ const k=r.category||'business'; (byCat[k]=byCat[k]||[]).push(r); });
+  const cats=order.filter(k=>byCat[k]).map(k=>({id:k,label:(NET_CATS[k]||{}).label||k,icon:(NET_CATS[k]||{}).icon||'',contacts:byCat[k]}));
+  Object.keys(byCat).forEach(k=>{ if(!order.includes(k)) cats.push({id:k,label:k,icon:'',contacts:byCat[k]}); });
+  const today=Date.now(), DAY=86400000, fus=[];
+  rows.forEach(r=>{
+    const d=r.reach_out?Math.floor((today-Date.parse(r.reach_out))/DAY):null;
+    if(r.fu || (d!==null && d>180)) fus.push({ name:r.name, category:(NET_CATS[r.category]||{}).label||r.category,
+      why:r.help||r.opportunity||r.role||r.descr||'—',
+      reason:r.fu?'flagged':(d!==null?`last contact ${String(r.reach_out).slice(0,10)} (~${Math.round(d/30)}mo)`:'follow up') });
+  });
+  return {categories:cats, followUps:fus};
+}
+async function loadNetworking(){ try{ return buildNetworking(await api('/networking')); }catch(e){ console.error('networking load',e); return {categories:[],followUps:[]}; } }
+
 // minimal markdown -> HTML (headings, lists, bold, paragraphs); strips frontmatter
 function mdToHtml(md){
   md = (md||'').replace(/^---[\s\S]*?---\s*/,'');
@@ -136,7 +167,7 @@ function mdToHtml(md){
 
 async function boot(){
   [DATA.profileMd, DATA.portfolio, DATA.expenses, DATA.networking, DATA.drip] = await Promise.all(
-    [loadText('profile.md'), load('portfolio'), load('expenses'), load('networking'), load('drip')]);
+    [loadText('profile.md'), load('portfolio'), load('expenses'), loadNetworking(), load('drip')]);
   render('who');
 }
 
@@ -244,7 +275,7 @@ function viewNetworking(){
   let segs = segBtn('followups','🔔 Follow-ups',fus.length, NET_TAB==='followups');
   segs += cats.map(c=>segBtn(c.id, `${c.icon||''} ${c.label}`, c.contacts.length, NET_TAB===c.id)).join('');
   V().append(el(`<div class="segwrap"><div class="seg">${segs}</div>
-    <span class="muted" style="font-size:12px;margin-left:auto">${total} contacts · source: <code>MM - Networking.xlsx</code></span></div>`));
+    <span class="muted" style="font-size:12px;margin-left:auto">${total} contacts · <code>live DB</code></span></div>`));
   V().querySelector('.seg').addEventListener('click',e=>{
     const b=e.target.closest('button'); if(!b)return; NET_TAB=b.dataset.net; render('networking');
   });
@@ -267,26 +298,77 @@ function renderFollowups(fus){
     </tbody></table></div>`));
 }
 function renderCategory(cat){
-  const arr=cat.contacts;
-  if(!arr.length){ V().append(el(`<div class="empty">No contacts in ${cat.label} yet.</div>`)); return; }
-  const flagged = arr.filter(c=>c.fu).length;
-  V().append(el(`<div class="grid kpis" style="margin-bottom:16px">
-    <div class="card kpi"><div class="label">${cat.label}</div><div class="val" style="color:var(--accent)">${arr.length}</div><div class="hint">contacts</div></div>
-    <div class="card kpi"><div class="label">Flagged FU</div><div class="val" style="color:var(--lime)">${flagged}</div><div class="hint">need follow-up</div></div>
+  const arr=cat.contacts; const flagged=arr.filter(c=>c.fu).length;
+  V().append(el(`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+    <div class="grid kpis" style="flex:1;margin:0">
+      <div class="card kpi"><div class="label">${cat.label}</div><div class="val" style="color:var(--accent)">${arr.length}</div><div class="hint">contacts</div></div>
+      <div class="card kpi"><div class="label">Flagged FU</div><div class="val" style="color:var(--lime)">${flagged}</div><div class="hint">need follow-up</div></div>
+    </div>
+    <button class="btn-primary" onclick="openContactModal(null)"><i></i>+ Tambah Kontak</button>
   </div>`));
-  const isUncat = cat.id==='uncategorized';
-  V().append(el(`<div class="card">
-    ${isUncat?'<div class="hint muted" style="margin-bottom:10px">⚠️ In the Connections master but not yet filed into a category sheet — assign them an ecosystem.</div>':''}
-    <table><thead><tr><th>Name</th><th>Role / Desc</th><th>${isUncat?'Ecosystem':'How they help'}</th><th>Channel</th><th></th></tr></thead><tbody>
+  if(!arr.length){ V().append(el(`<div class="empty">Belum ada kontak di ${cat.label}. Klik "+ Tambah Kontak".</div>`)); return; }
+  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role / Desc</th><th>How they help</th><th>Channel</th><th></th></tr></thead><tbody>
     ${arr.map(c=>`<tr>
-      <td><b>${c.name}</b>${c.location?`<div class="muted" style="font-size:11px">${c.location}</div>`:''}</td>
-      <td class="muted">${[c.role,c.company,c.desc,c.industry].filter(Boolean).join(' · ')||'—'}</td>
-      <td class="muted">${(isUncat?c.ecosystem:(c.help||c.opportunity))||'—'}</td>
-      <td class="muted" style="font-size:12px">${chan(c)||'—'}</td>
-      <td>${c.fu?'<span class="pill" style="background:#a3e63522;color:var(--lime)">FU</span>':''}</td>
+      <td><b>${esc(c.name)}</b>${c.location?`<div class="muted" style="font-size:11px">${esc(c.location)}</div>`:''} ${c.fu?'<span class="pill" style="background:#a3e63522;color:var(--lime)">FU</span>':''}</td>
+      <td class="muted">${[c.role,c.company,c.descr,c.industry].filter(Boolean).map(esc).join(' · ')||'—'}</td>
+      <td class="muted">${esc(c.help||c.opportunity||'')||'—'}</td>
+      <td class="muted" style="font-size:12px">${esc(chan(c))||'—'}</td>
+      <td style="white-space:nowrap;text-align:right">
+        <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${c.id}])">✏️</button>
+        <button class="btn-icon" title="Hapus" onclick="deleteContact(${c.id},'${escJs(c.name)}')">🗑️</button>
+      </td>
     </tr>`).join('')}
     </tbody></table></div>`));
 }
+
+/* ---------- NETWORKING CRUD (modal form) ---------- */
+const CONTACT_FIELDS = [
+  ['name','Nama','text'],['category','Kategori','select'],['role','Role','text'],['company','Company','text'],
+  ['location','Lokasi','text'],['help','How they help','textarea'],['opportunity','Opportunity','text'],
+  ['industry','Industry','text'],['ig','Instagram','text'],['tiktok','TikTok','text'],['wa','WhatsApp','text'],
+  ['reach_out','Last contact','date'],['fu_date','FU date','date'],['fu','Perlu follow-up','checkbox'],
+  ['descr','Deskripsi','textarea'],['notes','Notes','textarea']
+];
+function fieldInput(f,val){
+  const [k,label,type]=f; const v=val==null?'':val;
+  if(type==='select'){
+    const opts=Object.keys(NET_CATS).map(c=>`<option value="${c}" ${v===c?'selected':''}>${NET_CATS[c].label}</option>`).join('');
+    return `<label class="fld"><span>${label}</span><select name="${k}">${opts}</select></label>`;
+  }
+  if(type==='checkbox') return `<label class="fld fld-cb"><input type="checkbox" name="${k}" ${val?'checked':''}><span>${label}</span></label>`;
+  if(type==='textarea') return `<label class="fld fld-full"><span>${label}</span><textarea name="${k}" rows="2">${esc(v)}</textarea></label>`;
+  const dv = type==='date' ? String(v).slice(0,10) : esc(v);
+  return `<label class="fld"><span>${label}</span><input type="${type}" name="${k}" value="${dv}"></label>`;
+}
+function openContactModal(contact){
+  const editing = contact && contact.id;
+  document.getElementById('modalTitle').textContent = editing?'Edit Kontak':'Tambah Kontak';
+  document.getElementById('modalBody').innerHTML =
+    '<form id="contactForm" class="form-grid">'
+    + CONTACT_FIELDS.map(f=>fieldInput(f, contact? contact[f[0]] : (f[0]==='category'? (NET_TAB!=='followups'?NET_TAB:'business') : ''))).join('')
+    + '</form>';
+  document.getElementById('modalSave').onclick = ()=>saveContact(editing?contact.id:null);
+  document.getElementById('modal').style.display='flex';
+}
+function formData(){
+  const fd={};
+  document.querySelectorAll('#contactForm [name]').forEach(i=>{ fd[i.name] = i.type==='checkbox'? i.checked : (i.value===''?null:i.value); });
+  return fd;
+}
+async function saveContact(id){
+  const body=formData();
+  if(!body.name){ alert('Nama wajib diisi'); return; }
+  try{
+    await api('/networking'+(id?'/'+id:''), { method:id?'PUT':'POST', body:JSON.stringify(body) });
+    closeModal(); DATA.networking=await loadNetworking(); render('networking');
+  }catch(e){ alert('Gagal simpan: '+e.message); }
+}
+async function deleteContact(id,name){
+  if(!confirm('Hapus kontak "'+name+'"?')) return;
+  try{ await api('/networking/'+id,{method:'DELETE'}); DATA.networking=await loadNetworking(); render('networking'); }
+  catch(e){ alert('Gagal hapus: '+e.message); }
+}
+function closeModal(){ document.getElementById('modal').style.display='none'; }
 
 /* ---------- KNOWLEDGE ---------- */
 function viewKnowledge(){
@@ -309,5 +391,33 @@ function viewSettings(){
 
 boot();
 </script>
+<style>
+  .btn-primary{all:unset;cursor:pointer;background:var(--lime);color:#0d0d0d;font-weight:700;padding:9px 15px;border-radius:9px;font-size:13px;white-space:nowrap}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-icon{all:unset;cursor:pointer;padding:4px 7px;border-radius:6px;font-size:14px}
+  .btn-icon:hover{background:var(--panel2)}
+  #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:200;align-items:center;justify-content:center;padding:20px}
+  #modal .card{background:var(--panel);max-width:620px;width:100%;max-height:90vh;overflow:auto}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .fld{display:flex;flex-direction:column;gap:4px}
+  .fld.fld-full{grid-column:1/-1}
+  .fld>span{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint)}
+  .fld input,.fld select,.fld textarea{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:8px 9px;color:var(--txt);font:13px "Plus Jakarta Sans",sans-serif;width:100%}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--lime)}
+  .fld.fld-cb{flex-direction:row;align-items:center;gap:8px}
+  .fld.fld-cb input{width:auto}
+  .btn-ghost{all:unset;cursor:pointer;padding:9px 15px;border:1px solid var(--line);border-radius:9px;font-size:13px;color:var(--muted)}
+  .btn-ghost:hover{background:var(--panel2);color:var(--txt)}
+</style>
+<div id="modal">
+  <div class="card">
+    <h3 class="sec" id="modalTitle" style="margin-top:0;font-size:14px">Kontak</h3>
+    <div id="modalBody"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px">
+      <button class="btn-ghost" onclick="closeModal()">Batal</button>
+      <button id="modalSave" class="btn-primary">Simpan</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

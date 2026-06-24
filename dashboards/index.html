@@ -331,25 +331,27 @@ function renderCategory(cat){
     <button class="btn-primary" onclick="openContactModal(null)">+ Tambah Kontak</button>
   </div>`));
   if(!arr.length){ V().append(el(`<div class="empty">Belum ada kontak di ${cat.label}. Klik "+ Tambah Kontak".</div>`)); return; }
-  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role / Desc</th><th>How We Help</th><th>Channel</th><th>Schedule</th><th style="text-align:right">Actions</th></tr></thead><tbody>
+  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>Value</th><th>Channel</th><th>Desc</th><th>Birthday</th><th>Schedule</th><th>Notes</th><th style="text-align:right">Actions</th></tr></thead><tbody>
     ${arr.map(c=>`<tr>
       <td>
         <b>${esc(c.name)}</b>
         ${c.location?`<div class="muted" style="font-size:11px">📍 ${esc(c.location)}</div>`:''}
-        ${c.birthday?`<div class="muted" style="font-size:11px">🎂 ${esc(c.birthday).slice(5)}</div>`:''}
       </td>
-      <td class="muted">${[c.role,c.descr].filter(Boolean).map(esc).join(' · ')||'—'}</td>
+      <td class="muted">${esc(c.role)||'—'}</td>
       <td class="muted" style="font-size:12px">
         ${c.how_can_i_help?`<div><span style="color:var(--lime)">I can help:</span> ${esc(c.how_can_i_help)}</div>`:''}
         ${c.how_can_they_help?`<div><span style="color:var(--accent)">They can help:</span> ${esc(c.how_can_they_help)}</div>`:''}
         ${(!c.how_can_i_help && !c.how_can_they_help)?'—':''}
       </td>
       <td class="muted" style="font-size:12px">${esc(chan(c))||'—'}</td>
+      <td class="muted" style="font-size:12px">${esc(c.descr)||'—'}</td>
+      <td class="muted" style="font-size:12px">${c.birthday?String(c.birthday).slice(0,10):'—'}</td>
       <td class="muted" style="font-size:12px">
         <div><b>Last:</b> ${c.last_contact?esc(c.last_contact).slice(0,10):'—'}</div>
         <div><b>Next:</b> ${c.next_contact?esc(c.next_contact).slice(0,10):'—'}</div>
-        <div><b>Cadence:</b> ${esc(c.cadence||'Kalau ada waktu')}</div>
+        <div style="font-size:10px"><b>Cadence:</b> ${esc(c.cadence||'Kalau ada waktu')}</div>
       </td>
+      <td class="muted" style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(c.notes||'')}">${esc(c.notes)||'—'}</td>
       <td style="white-space:nowrap;text-align:right">
         <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${c.id}])">✏️</button>
         <button class="btn-icon" title="Hapus" onclick="deleteContact(${c.id},'${escJs(c.name)}')">🗑️</button>

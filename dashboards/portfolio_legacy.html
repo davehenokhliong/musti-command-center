@@ -595,6 +595,15 @@
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
+  /* segmented pill control (matches networking tab) */
+  .seg { display: inline-flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px; }
+  .seg button { all: unset; cursor: pointer; padding: 8px 16px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted2); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .seg button:hover { color: var(--text); }
+  .seg button.active { background: var(--surface2); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
+  .seg button .cnt { font-size: 10px; color: var(--muted); font-weight: 600; }
+  .seg button.active .cnt { color: var(--lime); }
+  .segwrap { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; overflow-x: auto; }
+
   /* ================= FOOTER ================= */
   .footer { padding: 18px 40px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
   .footer-note { font-size: 11px; color: var(--muted); }
@@ -1325,6 +1334,10 @@
     </button>
   </div>
 
+  <div class="segwrap" style="margin-top:20px;">
+    <div class="seg" id="spendMonthFilterSeg"></div>
+  </div>
+
   <div class="spend-kpi-grid">
     <div class="kpi-card" style="--accent-bar:var(--red)">
       <div class="kpi-label">Total Spending</div>
@@ -1731,6 +1744,37 @@
     return [...base, ...custom];
   }
 
+  let activeSpendMonth = 'all';
+
+  function renderSpendMonthFilterDOM(rawData) {
+    const seg = document.getElementById('spendMonthFilterSeg');
+    if (!seg) return;
+    
+    // Group unique months from all transactions
+    const months = [...new Set(rawData.map(t => t.date.slice(0, 7)))].sort();
+    
+    // Build buttons HTML
+    let html = `<button class="${activeSpendMonth === 'all' ? 'active' : ''}" data-month="all">Semua <span class="cnt">${rawData.length}</span></button>`;
+    
+    months.forEach(m => {
+      const cnt = rawData.filter(t => t.date.startsWith(m)).length;
+      const [y, mo] = m.split('-');
+      const d = new Date(parseInt(y), parseInt(mo) - 1, 1);
+      const label = d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+      html += `<button class="${activeSpendMonth === m ? 'active' : ''}" data-month="${m}">${label} <span class="cnt">${cnt}</span></button>`;
+    });
+    
+    seg.innerHTML = html;
+    
+    // Wire up event listeners
+    seg.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeSpendMonth = btn.dataset.month;
+        renderSpendingTracker();
+      });
+    });
+  }
+
   const SPEND_CAT_COLORS = {
     'Expense Kartu Kredit BCA': '#f87171',
     'ADS': '#fb923c',
@@ -1788,10 +1832,10 @@
     showToast('Pengeluaran dihapus');
   }
 
-  function renderSpendManualList() {
+  function renderSpendManualList(filteredSpend) {
     const card = document.getElementById('spendManualCard');
     const tbody = document.getElementById('spendManualTableBody');
-    const allSpend = getAllSpend();
+    const allSpend = filteredSpend || getAllSpend();
     card.style.display = '';
     const sorted = [...allSpend].sort((a, b) => new Date(b.date) - new Date(a.date));
     tbody.innerHTML = '';
@@ -1817,13 +1861,26 @@
   }
 
   function renderSpendingTracker() {
-    const SPEND_DATA = getAllSpend();
-    const { byMonth, byCat } = computeSpendAggregates(SPEND_DATA);
+    const rawData = getAllSpend();
+    
+    // Re-render month filter segmented control
+    renderSpendMonthFilterDOM(rawData);
+
+    // Filter spending data for calculations
+    const SPEND_DATA = activeSpendMonth === 'all'
+      ? rawData
+      : rawData.filter(t => t.date.startsWith(activeSpendMonth));
+
+    // Full trend aggregates (always rawData so chart shows full timeline)
+    const { byMonth: fullByMonth } = computeSpendAggregates(rawData);
+    
+    // Active filtered aggregates (KPI, categories, donut)
+    const { byCat } = computeSpendAggregates(SPEND_DATA);
     const total = SPEND_DATA.reduce((s, t) => s + t.amount, 0);
-    const monthKeys = Object.keys(byMonth).sort();
-    const monthCount = monthKeys.length;
-    const avgPerMonth = total / monthCount;
-    const avgPerTxn = total / SPEND_DATA.length;
+    const monthKeys = Object.keys(fullByMonth).sort();
+    const monthCount = activeSpendMonth === 'all' ? monthKeys.length : 1;
+    const avgPerMonth = activeSpendMonth === 'all' ? (total / monthCount) : total;
+    const avgPerTxn = SPEND_DATA.length ? (total / SPEND_DATA.length) : 0;
 
     document.getElementById('spendTotalKpi').textContent = fmtSpendRp(total);
     document.getElementById('spendTotalKpi').nextElementSibling.textContent = `${SPEND_DATA.length} transaksi · ${monthCount} bulan`;
@@ -1834,9 +1891,14 @@
 
     const sortedCats = Object.entries(byCat).sort((a, b) => a[1] - b[1]); // most negative first
     const topCat = sortedCats[0];
-    const topCatShort = topCat[0].replace('Expense Kartu Kredit BCA', 'Kartu Kredit');
-    document.getElementById('spendTopCatKpi').textContent = topCatShort;
-    document.getElementById('spendTopCatSub').textContent = `${fmtSpendRp(topCat[1])} · ${(Math.abs(topCat[1]) / Math.abs(total) * 100).toFixed(1)}%`;
+    if (topCat) {
+      const topCatShort = topCat[0].replace('Expense Kartu Kredit BCA', 'Kartu Kredit');
+      document.getElementById('spendTopCatKpi').textContent = topCatShort;
+      document.getElementById('spendTopCatSub').textContent = `${fmtSpendRp(topCat[1])} · ${(Math.abs(topCat[1]) / Math.abs(total) * 100).toFixed(1)}%`;
+    } else {
+      document.getElementById('spendTopCatKpi').textContent = '—';
+      document.getElementById('spendTopCatSub').textContent = '—';
+    }
 
     // Monthly bar chart
     const monthLabels = monthKeys.map(m => {
@@ -1844,7 +1906,8 @@
       const d = new Date(parseInt(y), parseInt(mo) - 1, 1);
       return d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
     });
-    const monthValues = monthKeys.map(m => Math.abs(byMonth[m]));
+    const monthValues = monthKeys.map(m => Math.abs(fullByMonth[m]));
+    const barColors = monthKeys.map(m => (activeSpendMonth === 'all' || activeSpendMonth === m) ? '#f87171' : 'rgba(248, 113, 113, 0.3)');
 
     const spendCtx = document.getElementById('spendMonthChart').getContext('2d');
     if (spendMonthChartInstance) spendMonthChartInstance.destroy();
@@ -1855,7 +1918,7 @@
         datasets: [{
           label: 'Spending',
           data: monthValues,
-          backgroundColor: '#f87171',
+          backgroundColor: barColors,
           borderRadius: 6,
           maxBarThickness: 56,
         }]
@@ -1884,10 +1947,10 @@
     // Category bars
     const catBarsEl = document.getElementById('spendCatBars');
     catBarsEl.innerHTML = '';
-    const maxCatAbs = Math.abs(sortedCats[0][1]);
+    const maxCatAbs = sortedCats.length ? Math.abs(sortedCats[0][1]) : 0;
     sortedCats.forEach(([cat, amt]) => {
-      const pct = (Math.abs(amt) / Math.abs(total) * 100);
-      const widthPct = (Math.abs(amt) / maxCatAbs * 100);
+      const pct = total ? (Math.abs(amt) / Math.abs(total) * 100) : 0;
+      const widthPct = maxCatAbs ? (Math.abs(amt) / maxCatAbs * 100) : 0;
       const color = getSpendCatColor(cat);
       const row = document.createElement('div');
       row.className = 'spend-bar-row';
@@ -1926,7 +1989,7 @@
         }
       }
     });
-    const totalJt = (Math.abs(total) / 1000000).toFixed(0);
+    const totalJt = total ? (Math.abs(total) / 1000000).toFixed(0) : '0';
     document.getElementById('spendDonutCenter').textContent = '-Rp ' + totalJt + 'jt';
 
     // Top transactions list
@@ -1945,7 +2008,7 @@
       listEl.appendChild(li);
     });
 
-    renderSpendManualList();
+    renderSpendManualList(SPEND_DATA);
 
     // Refresh category datalist suggestions for the add-expense form
     const datalist = document.getElementById('spendCatSuggestions');

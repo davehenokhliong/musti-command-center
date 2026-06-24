@@ -159,10 +159,11 @@ function buildNetworking(rows){
   Object.keys(byCat).forEach(k=>{ if(!order.includes(k)) cats.push({id:k,label:k,icon:'',contacts:byCat[k]}); });
   const todayStr = new Date().toISOString().slice(0,10), fus=[];
   rows.forEach(r=>{
-    if(r.next_contact && r.next_contact <= todayStr) {
+    const nextStr = r.next_contact ? String(r.next_contact).slice(0,10) : null;
+    if(nextStr && nextStr <= todayStr) {
       fus.push({ id:r.id, name:r.name, category:(NET_CATS[r.category]||{}).label||r.category,
         why:r.how_can_they_help||r.role||r.descr||'—',
-        reason: `due ${r.next_contact} (${r.cadence||'—'})` });
+        reason: `due ${nextStr} (${r.cadence||'—'})` });
     }
   });
   const birthdayPeople = [];
@@ -377,7 +378,7 @@ function renderFollowups(fus, bdays){
 function renderCategory(cat){
   const arr=cat.contacts;
   const todayStr = new Date().toISOString().slice(0,10);
-  const overdue=arr.filter(c=>c.next_contact && c.next_contact <= todayStr).length;
+  const overdue=arr.filter(c=>c.next_contact && String(c.next_contact).slice(0,10) <= todayStr).length;
   V().append(el(`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
     <div class="grid kpis" style="flex:1;margin:0">
       <div class="card kpi"><div class="label">${cat.label}</div><div class="val" style="color:var(--accent)">${arr.length}</div><div class="hint">contacts</div></div>

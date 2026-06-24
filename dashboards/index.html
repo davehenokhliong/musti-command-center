@@ -165,15 +165,31 @@ function mdToHtml(md){
   close(); return html;
 }
 
+let ME = { email:'', tabs:[] };
+const NAMES = { 'dave@mustimusik.id':['Dave','Owner'], 'alex@mustimusik.id':['Alex','Portfolio'], 'shofi@mustimusik.id':['Shofi','Networking'] };
 async function boot(){
-  [DATA.profileMd, DATA.portfolio, DATA.expenses, DATA.networking, DATA.drip] = await Promise.all(
-    [loadText('profile.md'), load('portfolio'), load('expenses'), loadNetworking(), load('drip')]);
-  render('who');
+  // Who am I + what can I see?
+  try{ ME = await api('/me'); }catch(e){ location.replace('/dashboards/login.html'); return; }
+  const allow = new Set(ME.tabs||[]);
+  document.querySelectorAll('.nav button').forEach(b=>{ if(!allow.has(b.dataset.tab)) b.remove(); });
+  // User chip
+  const n = NAMES[ME.email] || [ME.email.split('@')[0], ''];
+  const av=document.querySelector('.user .av'); if(av) av.textContent=(n[0]||'?')[0].toUpperCase();
+  const meta=document.querySelector('.user .meta'); if(meta) meta.innerHTML='<b>'+esc(n[0])+'</b><small class="muted">'+esc(n[1])+'</small>';
+  // Load only the data this role can access (avoids 403s)
+  const jobs=[];
+  if(allow.has('who')){ jobs.push(loadText('profile.md').then(v=>DATA.profileMd=v), load('expenses').then(v=>DATA.expenses=v), load('drip').then(v=>DATA.drip=v)); }
+  if(allow.has('portfolio')){ jobs.push(load('portfolio').then(v=>DATA.portfolio=v)); }
+  if(allow.has('networking')){ jobs.push(loadNetworking().then(v=>DATA.networking=v)); }
+  await Promise.all(jobs);
+  // First allowed tab becomes active
+  const first=document.querySelector('.nav button');
+  if(!first){ V().innerHTML='<div class="card">No access. Hubungi Dave.</div>'; return; }
+  first.classList.add('active'); render(first.dataset.tab);
 }
 
 function logout(){
-  try{ var x=new XMLHttpRequest(); x.open('GET', location.origin+'/?logout='+Date.now(), false, 'logout', 'x'+Date.now()); x.send(); }catch(e){}
-  location.replace('/');
+  fetch('/api/logout',{method:'POST'}).finally(()=>location.replace('/dashboards/login.html'));
 }
 
 const TITLES = {

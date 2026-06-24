@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login · Musti Command Center</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23a3e635'/%3E%3Ctext x='50' y='52' font-size='56' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%8E%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#09090b;--panel:#18181b;--panel2:#27272a;--line:#27272a;--txt:#f4f4f5;--muted:#a1a1aa;--faint:#52525b;--lime:#a3e635;--teal:#2dd4bf;--red:#f87171}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--txt);font:14px/1.55 "Plus Jakarta Sans",-apple-system,sans-serif;letter-spacing:-0.01em}
+  .box{width:340px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--lime),var(--teal));display:grid;place-items:center;font-size:20px}
+  .brand b{font-size:15px;display:block}.brand small{color:var(--muted);font-size:11px}
+  label{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px}
+  input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--txt);font:inherit}
+  input:focus{outline:none;border-color:var(--lime)}
+  button{all:unset;cursor:pointer;width:100%;text-align:center;margin-top:20px;padding:12px;border-radius:9px;background:var(--lime);color:#0a0a0a;font-weight:700}
+  button:hover{filter:brightness(1.05)}
+  .err{color:var(--red);font-size:12px;margin-top:14px;min-height:16px}
+</style>
+</head>
+<body>
+  <form class="box" id="f">
+    <div class="brand"><div class="logo">🎵</div><div><b>Command Center</b><small>Personal dashboard</small></div></div>
+    <label>Email</label>
+    <input type="email" id="email" autocomplete="username" autofocus required>
+    <label>Password</label>
+    <input type="password" id="pw" autocomplete="current-password" required>
+    <button type="submit">Masuk</button>
+    <div class="err" id="err"></div>
+  </form>
+<script>
+  const f=document.getElementById('f'), err=document.getElementById('err');
+  f.addEventListener('submit', async (e)=>{
+    e.preventDefault(); err.textContent='';
+    try{
+      const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:email.value.trim(),password:pw.value})});
+      const d=await r.json();
+      if(!r.ok){ err.textContent=d.error||'Login gagal'; return; }
+      location.href='/dashboards/index.html';
+    }catch(_){ err.textContent='Koneksi gagal, coba lagi'; }
+  });
+</script>
+</body>
+</html>

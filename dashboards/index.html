@@ -131,6 +131,25 @@ const NET_CATS = {
   government:{label:'Government',icon:'🏛️'}, hitlist:{label:'Hitlist',icon:'🎯'}
 };
 let NET_BY_ID = {};
+function getDaysUntilBirthday(bdayStr) {
+  if (!bdayStr) return null;
+  const parts = String(bdayStr).slice(0, 10).split('-');
+  if (parts.length !== 3) return null;
+  const bMonth = parseInt(parts[1], 10) - 1;
+  const bDay = parseInt(parts[2], 10);
+  
+  const today = new Date();
+  const tYear = today.getFullYear();
+  
+  let bDate = new Date(tYear, bMonth, bDay);
+  if (bDate.getTime() < new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) {
+    bDate.setFullYear(tYear + 1);
+  }
+  
+  const diffTime = bDate.getTime() - new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
 function buildNetworking(rows){
   NET_BY_ID = {}; rows.forEach(r=>{ NET_BY_ID[r.id]=r; });
   const order=['business','music','personal','community','government','hitlist'];
@@ -146,9 +165,26 @@ function buildNetworking(rows){
         reason: `due ${r.next_contact} (${r.cadence||'—'})` });
     }
   });
-  return {categories:cats, followUps:fus};
+  const birthdayPeople = [];
+  rows.forEach(r => {
+    if (r.birthday) {
+      const days = getDaysUntilBirthday(r.birthday);
+      if (days !== null && days <= 7) {
+        birthdayPeople.push({
+          id: r.id,
+          name: r.name,
+          category: (NET_CATS[r.category]||{}).label||r.category,
+          birthday: String(r.birthday).slice(5, 10), // MM-DD
+          daysLeft: days
+        });
+      }
+    }
+  });
+  // Sort birthdays so today's birthdays are at the top
+  birthdayPeople.sort((a, b) => a.daysLeft - b.daysLeft);
+  return {categories:cats, followUps:fus, birthdays:birthdayPeople};
 }
-async function loadNetworking(){ try{ return buildNetworking(await api('/networking')); }catch(e){ console.error('networking load',e); return {categories:[],followUps:[]}; } }
+async function loadNetworking(){ try{ return buildNetworking(await api('/networking')); }catch(e){ console.error('networking load',e); return {categories:[],followUps:[],birthdays:[]}; } }
 
 // minimal markdown -> HTML (headings, lists, bold, paragraphs); strips frontmatter
 function mdToHtml(md){
@@ -278,19 +314,19 @@ function viewPortfolio(){
 let NET_TAB = 'followups';
 function chan(c){
   const out=[];
-  if(c.wa) out.push('WA: '+c.wa);
-  if(c.ig) out.push('IG: '+c.ig.replace(/^IG:?\s*/i,''));
-  return out.join(' · ');
+  if(c.wa) out.push('WA: '+esc(c.wa));
+  if(c.ig) out.push('IG: '+esc(c.ig.replace(/^IG:?\s*/i,'')));
+  return out.join('<br>');
 }
 function viewNetworking(){
   const n = DATA.networking||{};
-  const cats = n.categories||[]; const fus = n.followUps||[];
+  const cats = n.categories||[]; const fus = n.followUps||[]; const bdays = n.birthdays||[];
   if(!cats.length){ V().append(el('<div class="empty">No contacts yet. Add them in <b>networking.json</b>.</div>')); return; }
   const total = cats.reduce((s,c)=>s+c.contacts.length,0);
 
   // segmented pill control: Follow-ups + one per category
   const segBtn = (id,label,cnt,active)=>`<button data-net="${id}" class="${active?'active':''}">${label}<span class="cnt">${cnt}</span></button>`;
-  let segs = segBtn('followups','🔔 Follow-ups',fus.length, NET_TAB==='followups');
+  let segs = segBtn('followups','🔔 Follow-ups', fus.length + bdays.length, NET_TAB==='followups');
   segs += cats.map(c=>segBtn(c.id, `${c.icon||''} ${c.label}`, c.contacts.length, NET_TAB===c.id)).join('');
   V().append(el(`<div class="segwrap"><div class="seg">${segs}</div>
     <span class="muted" style="font-size:12px;margin-left:auto">${total} contacts · <code>live DB</code></span></div>`));
@@ -298,26 +334,45 @@ function viewNetworking(){
     const b=e.target.closest('button'); if(!b)return; NET_TAB=b.dataset.net; render('networking');
   });
 
-  if(NET_TAB==='followups'){ renderFollowups(fus); return; }
+  if(NET_TAB==='followups'){ renderFollowups(fus, bdays); return; }
   const cat = cats.find(c=>c.id===NET_TAB) || cats[0];
   renderCategory(cat);
 }
-function renderFollowups(fus){
-  if(!fus.length){ V().append(el('<div class="empty">No follow-ups flagged. Set a follow-up cadence (How Close?) to get reminders.</div>')); return; }
-  V().append(el(`<div class="card" style="border-color:#a3e63533">
-    <h3 class="sec" style="color:var(--lime)">People to reconnect with — based on How Close? (cadence)</h3>
-    <table><thead><tr><th>Name</th><th>Category</th><th>Why reach out</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>
-    ${fus.map(f=>`<tr>
-      <td><b>${esc(f.name)}</b></td>
-      <td class="muted">${esc(f.category||'')}</td>
-      <td class="muted">${esc(f.why||'—')}</td>
-      <td><span class="pill" style="background:#a3e63522;color:var(--lime)">${esc(f.reason||'follow up')}</span></td>
-      <td style="white-space:nowrap;text-align:right">
-        <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${f.id}])">✏️</button>
-        <button class="btn-icon" title="Hapus" onclick="deleteContact(${f.id},'${escJs(f.name)}')">🗑️</button>
-      </td>
-    </tr>`).join('')}
-    </tbody></table></div>`));
+function renderFollowups(fus, bdays){
+  if(!fus.length && !bdays.length){ V().append(el('<div class="empty">No follow-ups flagged. Set a follow-up cadence (How Close?) to get reminders.</div>')); return; }
+  
+  if(bdays.length){
+    V().append(el(`<div class="card" style="border-color:#38bdf833;margin-bottom:20px">
+      <h3 class="sec" style="color:#38bdf8;margin-top:0">🎂 Birthdays (Today & Coming Up)</h3>
+      <table><thead><tr><th>Name</th><th>Category</th><th>Birthday</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>
+      ${bdays.map(b=>`<tr>
+        <td><b>${esc(b.name)}</b></td>
+        <td class="muted">${esc(b.category)}</td>
+        <td class="muted">${esc(b.birthday)}</td>
+        <td><span class="pill" style="${b.daysLeft===0?'background:#f43f5e22;color:#f43f5e':'background:#38bdf822;color:#38bdf8'}">${b.daysLeft===0?'🎉 Today!':`in ${b.daysLeft} days`}</span></td>
+        <td style="white-space:nowrap;text-align:right">
+          <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${b.id}])">✏️</button>
+        </td>
+      </tr>`).join('')}
+      </tbody></table></div>`));
+  }
+
+  if(fus.length){
+    V().append(el(`<div class="card" style="border-color:#a3e63533">
+      <h3 class="sec" style="color:var(--lime);margin-top:0">People to reconnect with — based on How Close? (cadence)</h3>
+      <table><thead><tr><th>Name</th><th>Category</th><th>Why reach out</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>
+      ${fus.map(f=>`<tr>
+        <td><b>${esc(f.name)}</b></td>
+        <td class="muted">${esc(f.category||'')}</td>
+        <td class="muted">${esc(f.why||'—')}</td>
+        <td><span class="pill" style="background:#a3e63522;color:var(--lime)">${esc(f.reason||'follow up')}</span></td>
+        <td style="white-space:nowrap;text-align:right">
+          <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${f.id}])">✏️</button>
+          <button class="btn-icon" title="Hapus" onclick="deleteContact(${f.id},'${escJs(f.name)}')">🗑️</button>
+        </td>
+      </tr>`).join('')}
+      </tbody></table></div>`));
+  }
 }
 function renderCategory(cat){
   const arr=cat.contacts;
@@ -331,11 +386,12 @@ function renderCategory(cat){
     <button class="btn-primary" onclick="openContactModal(null)">+ Tambah Kontak</button>
   </div>`));
   if(!arr.length){ V().append(el(`<div class="empty">Belum ada kontak di ${cat.label}. Klik "+ Tambah Kontak".</div>`)); return; }
-  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>Value</th><th>Channel</th><th>Desc</th><th>Birthday</th><th>Schedule</th><th>Notes</th><th style="text-align:right">Actions</th></tr></thead><tbody>
+  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>Value</th><th>Channel</th><th>Schedule</th><th>Desc & Notes</th><th style="text-align:right">Actions</th></tr></thead><tbody>
     ${arr.map(c=>`<tr>
       <td>
         <b>${esc(c.name)}</b>
         ${c.location?`<div class="muted" style="font-size:11px">📍 ${esc(c.location)}</div>`:''}
+        ${c.birthday?`<div class="muted" style="font-size:11px">🎂 ${esc(c.birthday).slice(0,10)}</div>`:''}
       </td>
       <td class="muted">${esc(c.role)||'—'}</td>
       <td class="muted" style="font-size:12px">
@@ -343,15 +399,17 @@ function renderCategory(cat){
         ${c.how_can_they_help?`<div><span style="color:var(--accent)">They can help:</span> ${esc(c.how_can_they_help)}</div>`:''}
         ${(!c.how_can_i_help && !c.how_can_they_help)?'—':''}
       </td>
-      <td class="muted" style="font-size:12px">${esc(chan(c))||'—'}</td>
-      <td class="muted" style="font-size:12px">${esc(c.descr)||'—'}</td>
-      <td class="muted" style="font-size:12px">${c.birthday?String(c.birthday).slice(0,10):'—'}</td>
+      <td class="muted" style="font-size:12px">${chan(c)||'—'}</td>
       <td class="muted" style="font-size:12px">
         <div><b>Last:</b> ${c.last_contact?esc(c.last_contact).slice(0,10):'—'}</div>
         <div><b>Next:</b> ${c.next_contact?esc(c.next_contact).slice(0,10):'—'}</div>
         <div style="font-size:10px"><b>Cadence:</b> ${esc(c.cadence||'Kalau ada waktu')}</div>
       </td>
-      <td class="muted" style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(c.notes||'')}">${esc(c.notes)||'—'}</td>
+      <td class="muted" style="font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis" title="Desc: ${esc(c.descr||'')}\nNotes: ${esc(c.notes||'')}">
+        ${c.descr?`<div><b>Desc:</b> ${esc(c.descr)}</div>`:''}
+        ${c.notes?`<div><b>Notes:</b> ${esc(c.notes)}</div>`:''}
+        ${(!c.descr && !c.notes)?'—':''}
+      </td>
       <td style="white-space:nowrap;text-align:right">
         <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${c.id}])">✏️</button>
         <button class="btn-icon" title="Hapus" onclick="deleteContact(${c.id},'${escJs(c.name)}')">🗑️</button>

@@ -575,6 +575,12 @@
     border-radius: 5px; opacity: 0.6; transition: all 0.12s;
   }
   .row-del-btn:hover { background: rgba(248,113,113,0.15); color: var(--red); opacity: 1; }
+  .row-edit-btn {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 5px; opacity: 0.6; transition: all 0.12s;
+  }
+  .row-edit-btn:hover { background: rgba(96,165,250,0.15); color: var(--accent); opacity: 1; }
   .custom-row-badge {
     font-size: 9px; color: var(--accent); border: 1px solid currentColor; border-radius: 4px;
     padding: 1px 5px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.03em;
@@ -638,18 +644,19 @@
   </button>
 </div>
 
-<!-- TOTAL PORTFOLIO VALUE (moved below tabs for breathing room) -->
-<div class="total-block" style="padding:24px 0 4px">
-  <div class="total-label">Total Nilai Portfolio</div>
-  <div class="total-val">Rp 1.356.824.966</div>
-  <div class="total-delta c-green">+Rp 33.955.720 · +2,57% dari modal bersih</div>
-</div>
-
 <!-- ============ OVERVIEW PANEL ============ -->
 <div class="tabpanel active" id="panel-overview">
-  <div class="panel-head">
-    <div class="panel-title">Ringkasan Portfolio</div>
-    <div class="panel-sub">Semua akun &amp; holdings · per 18 Jun 2026</div>
+  <div class="panel-head-row" style="margin-bottom: 22px;">
+    <div class="panel-head" style="margin-bottom:0;">
+      <div class="panel-title">Ringkasan Portfolio</div>
+      <div class="panel-sub">Semua akun &amp; holdings · per 18 Jun 2026</div>
+    </div>
+    <!-- TOTAL PORTFOLIO VALUE (only in overview tab) -->
+    <div class="total-block" style="padding:0;">
+      <div class="total-label">Total Nilai Portfolio</div>
+      <div class="total-val">Rp 1.356.824.966</div>
+      <div class="total-delta c-green">+Rp 33.955.720 · +2,57% dari modal bersih</div>
+    </div>
   </div>
 
   <!-- KPI Cards -->
@@ -1387,10 +1394,10 @@
     </div>
   </div>
 
-  <div class="card" id="spendManualCard" style="margin-top:16px; display:none;">
+  <div class="card" id="spendManualCard" style="margin-top:16px;">
     <div class="card-head">
-      <span class="card-title">Transaksi Manual Kamu</span>
-      <span class="fx-note">Tersimpan di browser ini · bisa dihapus kapan aja</span>
+      <span class="card-title">Rincian Transaksi Pengeluaran</span>
+      <span class="fx-note">Semua transaksi (BCA &amp; manual) diurutkan berdasarkan tanggal terbaru</span>
     </div>
     <div style="overflow-x:auto;">
     <table>
@@ -1419,7 +1426,7 @@
 <div class="modal-overlay" id="addTxnModal">
   <div class="modal-box">
     <div class="modal-head">
-      <span class="modal-title">Tambah Transaksi</span>
+      <span class="modal-title" id="addTxnModalTitle">Tambah Transaksi</span>
       <button class="modal-close" id="closeAddTxnBtn">&times;</button>
     </div>
     <div class="modal-body">
@@ -1583,6 +1590,7 @@
   const ACCOUNT_COLORS = { SUPERBANK:'#5b8def', Pluang:'#a78bfa', INDODAX:'#f7931a', BIBIT:'#22c55e', GOTRADE:'#e879f9' };
   const DB_TYPE_MAP = { DEPOSIT:'deposit', INTEREST:'interest', TRANSFER_IN:'transfer_in', TRANSFER_OUT:'transfer_out', BUY:'buy', SELL:'sell', FEE:'fee', TRANSFER:'transfer', WITHDRAW:'transfer_out' };
   let TXNS = [];
+  let editingTxnId = null;
   function toDisplayTxn(r) {
     return { id:'db'+r.id, _dbid:r.id, date:String(r.date||'').slice(0,10),
       type: DB_TYPE_MAP[r.type] || String(r.type||'').toLowerCase(),
@@ -1591,6 +1599,22 @@
       qty: r.quantity!=null ? (Number(r.quantity)+' '+(r.symbol||'')).trim() : '—',
       price: r.price!=null ? ((r.currency==='USD'?'$':'Rp ')+Number(r.price).toLocaleString('id-ID')) : '—',
       amount: Number(r.amount)||0, currency: r.currency||'IDR', fee: (r.fee!=null?r.fee:'—') };
+  }
+  function parseComment(comment) {
+    let desc = comment || '';
+    let qty = '';
+    let price = '';
+    if (desc.includes(' @ ')) {
+      const parts = desc.split(' @ ');
+      price = parts[1].trim();
+      desc = parts[0].trim();
+    }
+    if (desc.includes(' · ')) {
+      const parts = desc.split(' · ');
+      qty = parts[1].trim();
+      desc = parts[0].trim();
+    }
+    return { desc, qty, price };
   }
   async function loadTxns() { try { const res=await fetch('/api/portfolio'); TXNS=(await res.json()).map(toDisplayTxn); } catch(e){ console.error('load txns',e); TXNS=[]; } }
   function getAllTxns() { return TXNS; }
@@ -1661,13 +1685,21 @@
         <td class="r" style="color:var(--muted2)">${txn.qty || '—'}</td>
         <td class="r" style="color:var(--muted2)">${txn.price || '—'}</td>
         <td class="r"><span class="${amountClass}">${fmtTxnAmount(txn.amount, txn.currency)}</span></td>
-        <td class="r"><button class="row-del-btn" data-del-id="${txn.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+        <td class="r" style="white-space:nowrap;">
+          ${txn._dbid ? `
+            <button class="row-edit-btn" data-edit-id="${txn.id}" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="row-del-btn" data-del-id="${txn.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          ` : ''}
+        </td>
       `;
       tbody.appendChild(tr);
     });
 
     tbody.querySelectorAll('[data-del-id]').forEach(btn => {
       btn.addEventListener('click', () => deleteCustomTxn(btn.dataset.delId));
+    });
+    tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
+      btn.addEventListener('click', () => openEditTxnModal(btn.dataset.editId));
     });
   }
 
@@ -1759,21 +1791,23 @@
   function renderSpendManualList() {
     const card = document.getElementById('spendManualCard');
     const tbody = document.getElementById('spendManualTableBody');
-    const custom = getCustomSpend();
-    if (!custom.length) { card.style.display = 'none'; return; }
+    const allSpend = getAllSpend();
     card.style.display = '';
-    const sorted = [...custom].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sorted = [...allSpend].sort((a, b) => new Date(b.date) - new Date(a.date));
     tbody.innerHTML = '';
     sorted.forEach(t => {
       const dateObj = new Date(t.date);
       const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      const isManual = t.id && t.id.toString().startsWith('c');
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="font-size:12.5px;color:var(--muted2);white-space:nowrap;">${dateStr}</td>
-        <td style="font-size:13px;">${t.subcat}<span class="custom-row-badge">MANUAL</span></td>
+        <td style="font-size:13px;">${t.subcat || ''}${isManual ? '<span class="custom-row-badge">MANUAL</span>' : ''}</td>
         <td style="font-size:12.5px;color:var(--muted2);">${t.note || '—'}</td>
         <td class="r"><span class="pnl-neg">${fmtSpendRp(-Math.abs(t.amount))}</span></td>
-        <td class="r"><button class="row-del-btn" data-del-spend-id="${t.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+        <td class="r">
+          ${isManual ? `<button class="row-del-btn" data-del-spend-id="${t.id}" title="Hapus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>` : ''}
+        </td>
       `;
       tbody.appendChild(tr);
     });
@@ -1952,6 +1986,9 @@
   const txnFormError = document.getElementById('txnFormError');
 
   function openAddTxnModal() {
+    editingTxnId = null;
+    const titleEl = document.getElementById('addTxnModalTitle');
+    if (titleEl) titleEl.textContent = 'Tambah Transaksi';
     document.getElementById('txnFormDate').value = todayISO();
     document.getElementById('txnFormType').value = 'buy';
     document.getElementById('txnFormAccount').value = '';
@@ -1959,6 +1996,25 @@
     document.getElementById('txnFormQty').value = '';
     document.getElementById('txnFormPrice').value = '';
     document.getElementById('txnFormAmount').value = '';
+    txnFormError.classList.remove('show');
+    addTxnModal.classList.add('open');
+  }
+  function openEditTxnModal(id) {
+    const txn = TXNS.find(x => x.id === id);
+    if (!txn) return;
+    editingTxnId = txn._dbid;
+    const titleEl = document.getElementById('addTxnModalTitle');
+    if (titleEl) titleEl.textContent = 'Edit Transaksi';
+    document.getElementById('txnFormDate').value = txn.date;
+    document.getElementById('txnFormType').value = txn.type;
+    document.getElementById('txnFormAccount').value = txn.account === '—' ? '' : txn.account;
+    
+    const parsed = parseComment(txn.desc);
+    document.getElementById('txnFormDesc').value = parsed.desc;
+    document.getElementById('txnFormQty').value = parsed.qty;
+    document.getElementById('txnFormPrice').value = parsed.price;
+    document.getElementById('txnFormAmount').value = txn.amount;
+    
     txnFormError.classList.remove('show');
     addTxnModal.classList.add('open');
   }
@@ -1989,10 +2045,16 @@
       amount: parseFloat(amountRaw), currency: 'IDR',
       comment: desc + (qty ? ' · ' + qty : '') + (price ? ' @ ' + price : '')
     };
-    fetch('/api/portfolio', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+
+    const url = editingTxnId ? `/api/portfolio/${editingTxnId}` : '/api/portfolio';
+    const method = editingTxnId ? 'PUT' : 'POST';
+    const successMsg = editingTxnId ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan';
+    const errorMsg = editingTxnId ? 'Gagal memperbarui transaksi' : 'Gagal menambah transaksi';
+
+    fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
       .then(() => refreshTxns())
-      .then(() => { closeAddTxnModal(); showToast('Transaksi berhasil ditambahkan'); })
-      .catch(() => showToast('Gagal menambah transaksi'));
+      .then(() => { closeAddTxnModal(); showToast(successMsg); })
+      .catch(() => showToast(errorMsg));
   });
 
   // ===================== ADD EXPENSE MODAL (Spending Tracker BCA) =====================

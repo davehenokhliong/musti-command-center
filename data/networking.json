@@ -2122,6 +2122,12 @@
           "fu": false
         }
       ]
+    },
+    {
+      "id": "hitlist",
+      "label": "Hitlist",
+      "icon": "🎯",
+      "contacts": []
     }
   ]
 }

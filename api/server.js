@@ -92,10 +92,39 @@ app.get("/api/health", async (_req, res) => {
   catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
+function calculateNextContact(lastContact, cadence) {
+  if (!lastContact) return null;
+  const parts = String(lastContact).split("-");
+  if (parts.length !== 3) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const d = new Date(year, month, day);
+  if (isNaN(d.getTime())) return null;
+
+  if (cadence === "Setiap minggu") {
+    d.setDate(d.getDate() + 7);
+  } else if (cadence === "Setiap bulan") {
+    d.setMonth(d.getMonth() + 1);
+  } else if (cadence === "Setiap 3 bulan") {
+    d.setMonth(d.getMonth() + 3);
+  } else if (cadence === "Setiap 6 bulan") {
+    d.setMonth(d.getMonth() + 6);
+  } else if (cadence === "Setiap tahun") {
+    d.setFullYear(d.getFullYear() + 1);
+  } else {
+    return null;
+  }
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const rDay = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${rDay}`;
+}
+
 // ---- CRUD (tab-gated) ----
 const PORTFOLIO_COLS = ["date","account","type","symbol","quantity","price","amount","fee","fx_rate","currency","comment"];
 const NUMERIC = new Set(["quantity","price","amount","fee","fx_rate"]);
-const NET_COLS = ["name","category","role","company","location","help","opportunity","industry","ig","tiktok","wa","fu","reach_out","fu_date","notes","descr"];
+const NET_COLS = ["name","category","role","location","how_can_i_help","how_can_they_help","wa","ig","birthday","descr","cadence","notes","last_contact","next_contact"];
 const clean = (c, v) => {
   if (v === undefined || v === "") return null;
   if (NUMERIC.has(c) && v !== null) { const n = Number(v); return Number.isFinite(n) ? n : null; }
@@ -139,7 +168,12 @@ function crud(table, cols) {
   return r;
 }
 app.use("/api/portfolio", requireTab("portfolio"), crud("portfolio", PORTFOLIO_COLS));
-app.use("/api/networking", requireTab("networking"), crud("networking", NET_COLS));
+app.use("/api/networking", requireTab("networking"), (req, res, next) => {
+  if (req.method === "POST" || req.method === "PUT") {
+    req.body.next_contact = calculateNextContact(req.body.last_contact, req.body.cadence);
+  }
+  next();
+}, crud("networking", NET_COLS));
 
 // ---- static (auth + tab-gated) ----
 // Which tab each personal data file belongs to (others = login required only).

@@ -128,21 +128,23 @@ const escJs = s => String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"
 const NET_CATS = {
   business:{label:'Business',icon:'💼'}, music:{label:'Music',icon:'🎵'},
   personal:{label:'Personal',icon:'🤝'}, community:{label:'Community',icon:'⛪'},
-  government:{label:'Government',icon:'🏛️'}
+  government:{label:'Government',icon:'🏛️'}, hitlist:{label:'Hitlist',icon:'🎯'}
 };
 let NET_BY_ID = {};
 function buildNetworking(rows){
   NET_BY_ID = {}; rows.forEach(r=>{ NET_BY_ID[r.id]=r; });
-  const order=['business','music','personal','community','government'];
+  const order=['business','music','personal','community','government','hitlist'];
   const byCat={}; rows.forEach(r=>{ const k=r.category||'business'; (byCat[k]=byCat[k]||[]).push(r); });
-  const cats=order.filter(k=>byCat[k]).map(k=>({id:k,label:(NET_CATS[k]||{}).label||k,icon:(NET_CATS[k]||{}).icon||'',contacts:byCat[k]}));
+  if (!byCat['hitlist']) byCat['hitlist'] = [];
+  const cats=order.filter(k=>byCat[k]!==undefined).map(k=>({id:k,label:(NET_CATS[k]||{}).label||k,icon:(NET_CATS[k]||{}).icon||'',contacts:byCat[k]}));
   Object.keys(byCat).forEach(k=>{ if(!order.includes(k)) cats.push({id:k,label:k,icon:'',contacts:byCat[k]}); });
-  const today=Date.now(), DAY=86400000, fus=[];
+  const todayStr = new Date().toISOString().slice(0,10), fus=[];
   rows.forEach(r=>{
-    const d=r.reach_out?Math.floor((today-Date.parse(r.reach_out))/DAY):null;
-    if(r.fu || (d!==null && d>180)) fus.push({ name:r.name, category:(NET_CATS[r.category]||{}).label||r.category,
-      why:r.help||r.opportunity||r.role||r.descr||'—',
-      reason:r.fu?'flagged':(d!==null?`last contact ${String(r.reach_out).slice(0,10)} (~${Math.round(d/30)}mo)`:'follow up') });
+    if(r.next_contact && r.next_contact <= todayStr) {
+      fus.push({ id:r.id, name:r.name, category:(NET_CATS[r.category]||{}).label||r.category,
+        why:r.how_can_they_help||r.role||r.descr||'—',
+        reason: `due ${r.next_contact} (${r.cadence||'—'})` });
+    }
   });
   return {categories:cats, followUps:fus};
 }
@@ -276,9 +278,8 @@ function viewPortfolio(){
 let NET_TAB = 'followups';
 function chan(c){
   const out=[];
-  if(c.ig) out.push('IG '+c.ig.replace(/^IG:?\s*/i,''));
-  if(c.tiktok) out.push('TT '+c.tiktok.replace(/^TikTok:?\s*/i,''));
-  if(c.wa) out.push(c.wa);
+  if(c.wa) out.push('WA: '+c.wa);
+  if(c.ig) out.push('IG: '+c.ig.replace(/^IG:?\s*/i,''));
   return out.join(' · ');
 }
 function viewNetworking(){
@@ -302,34 +303,53 @@ function viewNetworking(){
   renderCategory(cat);
 }
 function renderFollowups(fus){
-  if(!fus.length){ V().append(el('<div class="empty">No follow-ups flagged. Mark contacts <code>FU=TRUE</code> or add a reach-out date in the sheet.</div>')); return; }
+  if(!fus.length){ V().append(el('<div class="empty">No follow-ups flagged. Set a follow-up cadence (How Close?) to get reminders.</div>')); return; }
   V().append(el(`<div class="card" style="border-color:#a3e63533">
-    <h3 class="sec" style="color:var(--lime)">People to reconnect with — flagged, or not contacted in a while</h3>
-    <table><thead><tr><th>Name</th><th>Category</th><th>Why reach out</th><th>Status</th></tr></thead><tbody>
+    <h3 class="sec" style="color:var(--lime)">People to reconnect with — based on How Close? (cadence)</h3>
+    <table><thead><tr><th>Name</th><th>Category</th><th>Why reach out</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>
     ${fus.map(f=>`<tr>
-      <td><b>${f.name}</b></td>
-      <td class="muted">${f.category||''}</td>
-      <td class="muted">${f.why||'—'}</td>
-      <td><span class="pill" style="background:#a3e63522;color:var(--lime)">${f.reason||'follow up'}</span></td>
+      <td><b>${esc(f.name)}</b></td>
+      <td class="muted">${esc(f.category||'')}</td>
+      <td class="muted">${esc(f.why||'—')}</td>
+      <td><span class="pill" style="background:#a3e63522;color:var(--lime)">${esc(f.reason||'follow up')}</span></td>
+      <td style="white-space:nowrap;text-align:right">
+        <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${f.id}])">✏️</button>
+        <button class="btn-icon" title="Hapus" onclick="deleteContact(${f.id},'${escJs(f.name)}')">🗑️</button>
+      </td>
     </tr>`).join('')}
     </tbody></table></div>`));
 }
 function renderCategory(cat){
-  const arr=cat.contacts; const flagged=arr.filter(c=>c.fu).length;
+  const arr=cat.contacts;
+  const todayStr = new Date().toISOString().slice(0,10);
+  const overdue=arr.filter(c=>c.next_contact && c.next_contact <= todayStr).length;
   V().append(el(`<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
     <div class="grid kpis" style="flex:1;margin:0">
       <div class="card kpi"><div class="label">${cat.label}</div><div class="val" style="color:var(--accent)">${arr.length}</div><div class="hint">contacts</div></div>
-      <div class="card kpi"><div class="label">Flagged FU</div><div class="val" style="color:var(--lime)">${flagged}</div><div class="hint">need follow-up</div></div>
+      <div class="card kpi"><div class="label">Due Follow-up</div><div class="val" style="color:var(--lime)">${overdue}</div><div class="hint">need follow-up</div></div>
     </div>
-    <button class="btn-primary" onclick="openContactModal(null)"><i></i>+ Tambah Kontak</button>
+    <button class="btn-primary" onclick="openContactModal(null)">+ Tambah Kontak</button>
   </div>`));
   if(!arr.length){ V().append(el(`<div class="empty">Belum ada kontak di ${cat.label}. Klik "+ Tambah Kontak".</div>`)); return; }
-  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role / Desc</th><th>How they help</th><th>Channel</th><th></th></tr></thead><tbody>
+  V().append(el(`<div class="card"><table><thead><tr><th>Name</th><th>Role / Desc</th><th>How We Help</th><th>Channel</th><th>Schedule</th><th style="text-align:right">Actions</th></tr></thead><tbody>
     ${arr.map(c=>`<tr>
-      <td><b>${esc(c.name)}</b>${c.location?`<div class="muted" style="font-size:11px">${esc(c.location)}</div>`:''} ${c.fu?'<span class="pill" style="background:#a3e63522;color:var(--lime)">FU</span>':''}</td>
-      <td class="muted">${[c.role,c.company,c.descr,c.industry].filter(Boolean).map(esc).join(' · ')||'—'}</td>
-      <td class="muted">${esc(c.help||c.opportunity||'')||'—'}</td>
+      <td>
+        <b>${esc(c.name)}</b>
+        ${c.location?`<div class="muted" style="font-size:11px">📍 ${esc(c.location)}</div>`:''}
+        ${c.birthday?`<div class="muted" style="font-size:11px">🎂 ${esc(c.birthday).slice(5)}</div>`:''}
+      </td>
+      <td class="muted">${[c.role,c.descr].filter(Boolean).map(esc).join(' · ')||'—'}</td>
+      <td class="muted" style="font-size:12px">
+        ${c.how_can_i_help?`<div><span style="color:var(--lime)">I can help:</span> ${esc(c.how_can_i_help)}</div>`:''}
+        ${c.how_can_they_help?`<div><span style="color:var(--accent)">They can help:</span> ${esc(c.how_can_they_help)}</div>`:''}
+        ${(!c.how_can_i_help && !c.how_can_they_help)?'—':''}
+      </td>
       <td class="muted" style="font-size:12px">${esc(chan(c))||'—'}</td>
+      <td class="muted" style="font-size:12px">
+        <div><b>Last:</b> ${c.last_contact?esc(c.last_contact).slice(0,10):'—'}</div>
+        <div><b>Next:</b> ${c.next_contact?esc(c.next_contact).slice(0,10):'—'}</div>
+        <div><b>Cadence:</b> ${esc(c.cadence||'Kalau ada waktu')}</div>
+      </td>
       <td style="white-space:nowrap;text-align:right">
         <button class="btn-icon" title="Edit" onclick="openContactModal(NET_BY_ID[${c.id}])">✏️</button>
         <button class="btn-icon" title="Hapus" onclick="deleteContact(${c.id},'${escJs(c.name)}')">🗑️</button>
@@ -340,29 +360,64 @@ function renderCategory(cat){
 
 /* ---------- NETWORKING CRUD (modal form) ---------- */
 const CONTACT_FIELDS = [
-  ['name','Nama','text'],['category','Kategori','select'],['role','Role','text'],['company','Company','text'],
-  ['location','Lokasi','text'],['help','How they help','textarea'],['opportunity','Opportunity','text'],
-  ['industry','Industry','text'],['ig','Instagram','text'],['tiktok','TikTok','text'],['wa','WhatsApp','text'],
-  ['reach_out','Last contact','date'],['fu_date','FU date','date'],['fu','Perlu follow-up','checkbox'],
-  ['descr','Deskripsi','textarea'],['notes','Notes','textarea']
+  ['name','Nama','text',true],
+  ['category','Kategori','select',true],
+  ['role','Role','text',true],
+  ['location','Lokasi','text',true],
+  ['wa','WhatsApp','text',true],
+  ['ig','Instagram','text',true],
+  ['birthday','Birthday','date',true],
+  ['cadence','How Close? (Cadence)','select_cadence',true],
+  ['last_contact','Last contact','date',true],
+  ['how_can_i_help','How can I help?','textarea',true],
+  ['how_can_they_help','How can they help?','textarea',true],
+  ['descr','Desc','textarea',true],
+  ['notes','Notes','textarea',true]
 ];
 function fieldInput(f,val){
-  const [k,label,type]=f; const v=val==null?'':val;
+  const [k,label,type,required]=f; const v=val==null?'':val;
+  const reqAttr = required ? 'required' : '';
   if(type==='select'){
     const opts=Object.keys(NET_CATS).map(c=>`<option value="${c}" ${v===c?'selected':''}>${NET_CATS[c].label}</option>`).join('');
-    return `<label class="fld"><span>${label}</span><select name="${k}">${opts}</select></label>`;
+    return `<label class="fld"><span>${label} *</span><select name="${k}" ${reqAttr}>${opts}</select></label>`;
   }
-  if(type==='checkbox') return `<label class="fld fld-cb"><input type="checkbox" name="${k}" ${val?'checked':''}><span>${label}</span></label>`;
-  if(type==='textarea') return `<label class="fld fld-full"><span>${label}</span><textarea name="${k}" rows="2">${esc(v)}</textarea></label>`;
+  if(type==='select_cadence'){
+    const cadences = ["Setiap minggu", "Setiap bulan", "Setiap 3... bulan", "Setiap 6 bulan", "Setiap tahun", "Kalau ada waktu"]; // wait, let's write exact cadences
+    const exactCadences = ["Setiap minggu", "Setiap bulan", "Setiap 3 bulan", "Setiap 6 bulan", "Setiap tahun", "Kalau ada waktu"];
+    const opts=exactCadences.map(c=>`<option value="${c}" ${v===c?'selected':''}>${c}</option>`).join('');
+    return `<label class="fld"><span>${label} *</span><select name="${k}" ${reqAttr}>${opts}</select></label>`;
+  }
+  if(type==='textarea'){
+    return `<label class="fld fld-full"><span>${label} *</span><textarea name="${k}" ${reqAttr} rows="2">${esc(v)}</textarea></label>`;
+  }
   const dv = type==='date' ? String(v).slice(0,10) : esc(v);
-  return `<label class="fld"><span>${label}</span><input type="${type}" name="${k}" value="${dv}"></label>`;
+  if(k==='last_contact'){
+    return `<label class="fld">
+      <span style="display:flex;justify-content:space-between;align-items:center">
+        <span>${label} *</span>
+        <a href="#" onclick="event.preventDefault(); document.querySelector('[name=last_contact]').value=new Date().toISOString().slice(0,10)" style="color:var(--lime);text-decoration:none;font-size:9px;font-weight:bold">✓ Set Today</a>
+      </span>
+      <input type="${type}" name="${k}" value="${dv}" ${reqAttr}>
+    </label>`;
+  }
+  return `<label class="fld"><span>${label} *</span><input type="${type}" name="${k}" value="${dv}" ${reqAttr}></label>`;
 }
 function openContactModal(contact){
   const editing = contact && contact.id;
   document.getElementById('modalTitle').textContent = editing?'Edit Kontak':'Tambah Kontak';
   document.getElementById('modalBody').innerHTML =
     '<form id="contactForm" class="form-grid">'
-    + CONTACT_FIELDS.map(f=>fieldInput(f, contact? contact[f[0]] : (f[0]==='category'? (NET_TAB!=='followups'?NET_TAB:'business') : ''))).join('')
+    + CONTACT_FIELDS.map(f=>{
+        let def = '';
+        if (f[0] === 'category') {
+          def = (NET_TAB !== 'followups' ? NET_TAB : 'business');
+        } else if (f[0] === 'cadence') {
+          def = 'Kalau ada waktu';
+        } else if (f[0] === 'last_contact' && !editing) {
+          def = new Date().toISOString().slice(0,10);
+        }
+        return fieldInput(f, contact ? contact[f[0]] : def);
+      }).join('')
     + '</form>';
   document.getElementById('modalSave').onclick = ()=>saveContact(editing?contact.id:null);
   document.getElementById('modal').style.display='flex';
@@ -373,8 +428,9 @@ function formData(){
   return fd;
 }
 async function saveContact(id){
+  const form = document.getElementById('contactForm');
+  if(!form.reportValidity()) return;
   const body=formData();
-  if(!body.name){ alert('Nama wajib diisi'); return; }
   try{
     await api('/networking'+(id?'/'+id:''), { method:id?'PUT':'POST', body:JSON.stringify(body) });
     closeModal(); DATA.networking=await loadNetworking(); render('networking');
